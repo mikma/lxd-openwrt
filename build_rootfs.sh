@@ -40,7 +40,7 @@ add_file() {
     dst=$dst_dir/$file
 
     if test -d $src; then
-	test -d $dst || mkdir $dst
+	test -d $dst || mkdir -p $dst
     elif test -f $src; then
 	cp $src $dst
 	foo=$(dirname $file)

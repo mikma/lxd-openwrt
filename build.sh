@@ -30,6 +30,14 @@ properties:
  release: "$ver"
 templates:
 EOF
+
+## Add templates
+#
+# templates:
+#   /etc/hostname:
+#     when:
+#       - start
+#     template: hostname.tpl
 }
 
 build_image() {
