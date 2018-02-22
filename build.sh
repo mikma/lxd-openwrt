@@ -9,11 +9,11 @@ image=openwrt
 name=openwrt
 
 generic_rootfs=lede-${ver}-${arch_dash}-generic-rootfs.tar.gz
-lxc_rootfs=lede-${ver}-${arch_dash}-lxd.tar.gz
+lxc_tar=lede-${ver}-${arch_dash}-lxd.tar.gz
 metadata=metadata.yaml
 
-build_rootfs() {
-	fakeroot ./build_rootfs.sh $generic_rootfs $metadata $lxc_rootfs
+build_tarball() {
+	fakeroot ./build_rootfs.sh $generic_rootfs $metadata $lxc_tar
 }
 
 build_metadata() {
@@ -41,11 +41,11 @@ EOF
 }
 
 build_image() {
-	lxc image import $lxc_rootfs --alias $image
+	lxc image import $lxc_tar --alias $image
 }
 
 build_metadata
-build_rootfs
+build_tarball
 build_image
 
 echo \# start
