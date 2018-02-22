@@ -7,9 +7,10 @@ arch_dash=`echo $arch | tr _ -`
 ver=17.01.4
 image=openwrt
 name=openwrt
+dist=lede
 
-generic_rootfs=lede-${ver}-${arch_dash}-generic-rootfs.tar.gz
-lxc_tar=lede-${ver}-${arch_dash}-lxd.tar.gz
+generic_rootfs=${dist}-${ver}-${arch_dash}-generic-rootfs.tar.gz
+lxc_tar=${dist}-${ver}-${arch_dash}-lxd.tar.gz
 metadata=metadata.yaml
 
 build_tarball() {
