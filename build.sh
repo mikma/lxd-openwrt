@@ -9,7 +9,7 @@ image=openwrt
 name=openwrt
 
 generic_rootfs=lede-${ver}-${arch_dash}-generic-rootfs.tar.gz
-lxc_rootfs=lede-${ver}-${arch_dash}-lxc-rootfs.tar.gz
+lxc_rootfs=lede-${ver}-${arch_dash}-lxd.tar.gz
 metadata=metadata.yaml
 
 build_rootfs() {
@@ -17,7 +17,7 @@ build_rootfs() {
 }
 
 build_metadata() {
-	stat=`stat -c %Y $lxc_rootfs`
+	stat=`stat -c %Y $generic_rootfs`
 	date=`date -R -d "@${stat}"`
 
 	cat > $metadata <<EOF
@@ -33,12 +33,12 @@ EOF
 }
 
 build_image() {
-	lxc image import metadata.tar.gz $lxc_rootfs --alias $image
+	lxc image import $lxc_rootfs --alias $image
 }
 
 build_metadata
 build_rootfs
-#build_image
+build_image
 
 echo \# start
 echo lxc launch --config "raw.lxc=lxc.aa_profile=lxc-container-default-without-dev-mounting" --profile openwrt $image $name

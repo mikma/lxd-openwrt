@@ -65,5 +65,6 @@ add_files() {
 unpack
 add_files $files_dir $dir/rootfs/
 add_file $metadata $metadata_dir $dir
+add_files templates/ $dir/templates/
 pack
 #pack_squashfs
