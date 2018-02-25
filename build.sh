@@ -11,36 +11,55 @@ image=openwrt
 name=openwrt
 dist=lede
 
-generic_rootfs_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-${ver}-${arch_dash}-generic-rootfs.tar.gz
-generic_rootfs_sum=43886c6b4a555719603286ceb1733ea2386d43b095ab0da9be35816cd2ad8959
-generic_rootfs=dl/$(basename $generic_rootfs_url)
+rootfs_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-${ver}-${arch_dash}-generic-rootfs.tar.gz
+rootfs_sum=43886c6b4a555719603286ceb1733ea2386d43b095ab0da9be35816cd2ad8959
+rootfs=dl/$(basename $rootfs_url)
+
+sdk_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-sdk-${ver}-${arch}-${subarch}_gcc-5.4.0_musl-1.1.16.Linux--${arch}_${subarch}.tar.xz
+sdk_sum=ef8b801f756cf2aa354198df0790ab6858b3d70b97cc3c00613fd6e5d5bb100c
+sdk_tar=dl/$(basename $sdk_url)
 
 lxc_tar=${dist}-${ver}-${arch_dash}-lxd.tar.gz
 metadata=metadata.yaml
 
 download_rootfs() {
-	test -e dl || mkdir dl
+	download $rootfs_url $rootfs
+}
 
-	if ! test -e "$generic_rootfs" ; then
-		echo Downloading $generic_rootfs_url
-		wget -O $generic_rootfs "$generic_rootfs_url"
+download() {
+	url=$1
+	dst=$2
+	dir=$(dirname $dst)
+
+	if ! test -e "$dst" ; then
+		echo Downloading $url
+		test -e $dir || mkdir $dir
+
+		wget -O $dst "$url"
 	fi
 }
 
 check_rootfs() {
-	sum=$(sha256sum $generic_rootfs| cut -d ' ' -f1)
-	if test $generic_rootfs_sum != $sum; then
-		echo Bad checksum $sum of $generic_rootfs
+	check $rootfs $rootfs_sum
+}
+
+check() {
+	dst=$1
+	dst_sum=$2
+
+	sum=$(sha256sum $dst| cut -d ' ' -f1)
+	if test $dst_sum != $sum; then
+		echo Bad checksum $sum of $dst
 		exit 1
 	fi
 }
 
 build_tarball() {
-	fakeroot ./build_rootfs.sh $generic_rootfs $metadata $lxc_tar
+	fakeroot ./build_rootfs.sh $rootfs $metadata $lxc_tar
 }
 
 build_metadata() {
-	stat=`stat -c %Y $generic_rootfs`
+	stat=`stat -c %Y $rootfs`
 	date=`date -R -d "@${stat}"`
 
 	cat > $metadata <<EOF
