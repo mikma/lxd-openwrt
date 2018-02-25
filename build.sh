@@ -19,7 +19,7 @@ sdk_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}
 sdk_sum=ef8b801f756cf2aa354198df0790ab6858b3d70b97cc3c00613fd6e5d5bb100c
 sdk_tar=dl/$(basename $sdk_url)
 
-lxc_tar=${dist}-${ver}-${arch_dash}-lxd.tar.gz
+lxc_tar=bin/${dist}-${ver}-${arch_dash}-lxd.tar.gz
 metadata=metadata.yaml
 
 download_rootfs() {
