@@ -18,6 +18,7 @@ rootfs=dl/$(basename $rootfs_url)
 sdk_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-sdk-${ver}-${arch}-${subarch}_gcc-5.4.0_musl-1.1.16.Linux-${arch}_${subarch}.tar.xz
 sdk_sum=ef8b801f756cf2aa354198df0790ab6858b3d70b97cc3c00613fd6e5d5bb100c
 sdk_tar=dl/$(basename $sdk_url)
+sdk=build_dir/sdk
 
 procd_url=https://github.com/openwrt/openwrt/branches/lede-17.01/package/system/procd
 procd_extra_ver=lxd-3
@@ -33,6 +34,11 @@ download_rootfs() {
 download_sdk() {
 	download $sdk_url $sdk_tar
 	check $sdk_tar $sdk_sum
+	if ! test -e $sdk; then
+		test -e build_dir || mkdir build_dir
+		tar xvpf $sdk_tar -C build_dir
+		(cd build_dir && ln -sf ${dist}-sdk-* sdk)
+	fi
 }
 
 download() {
@@ -70,20 +76,28 @@ download_procd() {
 }
 
 build_procd() {
-	if ! test -e sdk/package/lxd-procd; then
-		ln -s $(pwd)/dl/procd sdk/package/lxd-procd
+	if ! test -e $sdk/package/lxd-procd; then
+		ln -s $(pwd)/dl/procd $sdk/package/lxd-procd
 	fi
-	make -C sdk package/lxd-procd/compile
+	(cd $sdk
+	./scripts/feeds update base
+	./scripts/feeds install libubox
+	make package/libubox/compile
+	./scripts/feeds install ubus
+	make package/ubus/compile
+	make package/lxd-procd/compile
+	)
 	local date=$(grep PKG_SOURCE_DATE:= dl/procd/Makefile | cut -d '=' -f 2)
 	local version=$(grep PKG_SOURCE_VERSION:= dl/procd/Makefile | cut -d '=' -f 2 | cut -b '1-8')
 	local release=$(grep PKG_RELEASE:= dl/procd/Makefile | cut -d '=' -f 2)
-	local procd_ipkg="sdk/bin/targets/${arch}/${subarch}/packages/procd_${date}-${version}-${release}_${arch}_${subarch}.ipk"
+	local procd_ipkg="$sdk/bin/targets/${arch}/${subarch}/packages/procd_${date}-${version}-${release}_${arch}_${subarch}.ipk"
 	test -e bin/packages/ || mkdir bin/packages/
 	ln -sf ../../$procd_ipkg bin/packages/
 }
 }
 
 build_tarball() {
+	export SDK="$(pwd)/${sdk}"
 	fakeroot ./build_rootfs.sh $rootfs $metadata $lxc_tar
 }
 

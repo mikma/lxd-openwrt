@@ -16,7 +16,7 @@ dir=/tmp/build.$$
 files_dir=files/
 instroot=$dir/rootfs
 
-OPKG=sdk/staging_dir/host/bin/opkg
+OPKG=$SDK/staging_dir/host/bin/opkg
 export IPKG_INSTROOT=$instroot
 
 unpack() {
