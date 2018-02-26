@@ -82,8 +82,9 @@ build_procd() {
 	(cd $sdk
 	./scripts/feeds update base
 	./scripts/feeds install libubox
-	make package/libubox/compile
 	./scripts/feeds install ubus
+	make defconfig
+	make package/libubox/compile
 	make package/ubus/compile
 	make package/lxd-procd/compile
 	)
