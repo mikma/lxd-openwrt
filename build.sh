@@ -92,7 +92,7 @@ build_procd() {
 	local version=$(grep PKG_SOURCE_VERSION:= dl/procd/Makefile | cut -d '=' -f 2 | cut -b '1-8')
 	local release=$(grep PKG_RELEASE:= dl/procd/Makefile | cut -d '=' -f 2)
 	local procd_ipkg="$sdk/bin/targets/${arch}/${subarch}/packages/procd_${date}-${version}-${release}_${arch}_${subarch}.ipk"
-	test -e bin/packages/ || mkdir bin/packages/
+	test -e bin/packages/ || mkdir -p bin/packages/
 	ln -sf ../../$procd_ipkg bin/packages/
 }
 
