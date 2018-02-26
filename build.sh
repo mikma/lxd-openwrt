@@ -14,7 +14,7 @@ rootfs_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subar
 rootfs_sum=43886c6b4a555719603286ceb1733ea2386d43b095ab0da9be35816cd2ad8959
 rootfs=dl/$(basename $rootfs_url)
 
-sdk_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-sdk-${ver}-${arch}-${subarch}_gcc-5.4.0_musl-1.1.16.Linux-${arch}_${subarch}.tar.xz
+sdk_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-sdk-${ver}-${arch}-${subarch}_gcc-5.4.0_musl-1.1.16.Linux-x86_64.tar.xz
 sdk_sum=ef8b801f756cf2aa354198df0790ab6858b3d70b97cc3c00613fd6e5d5bb100c
 sdk_tar=dl/$(basename $sdk_url)
 sdk_name=sdk-${ver}-${arch}-${subarch}
