@@ -84,8 +84,6 @@ build_procd() {
 	./scripts/feeds install libubox
 	./scripts/feeds install ubus
 	make defconfig
-	make package/libubox/compile
-	make package/ubus/compile
 	make package/lxd-procd/compile
 	)
 	local date=$(grep PKG_SOURCE_DATE:= dl/procd/Makefile | cut -d '=' -f 2)
