@@ -81,6 +81,6 @@ unpack
 add_files $files_dir $instroot
 add_file $metadata $metadata_dir $dir
 add_files templates/ $dir/templates/
-add_packages bin/packages/
+add_packages bin/packages/${ARCH}/${SUBARCH}
 pack
 #pack_squashfs

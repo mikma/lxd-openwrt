@@ -4,7 +4,6 @@ set -e
 
 arch=x86
 subarch=64
-arch_lxd=${arch}_${subarch}
 arch_dash=${arch}-${subarch}
 ver=17.01.4
 image=openwrt
@@ -18,7 +17,8 @@ rootfs=dl/$(basename $rootfs_url)
 sdk_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-sdk-${ver}-${arch}-${subarch}_gcc-5.4.0_musl-1.1.16.Linux-${arch}_${subarch}.tar.xz
 sdk_sum=ef8b801f756cf2aa354198df0790ab6858b3d70b97cc3c00613fd6e5d5bb100c
 sdk_tar=dl/$(basename $sdk_url)
-sdk=build_dir/sdk
+sdk_name=sdk-${ver}-${arch}-${subarch}
+sdk=build_dir/${sdk_name}
 
 procd_url=https://github.com/openwrt/openwrt/branches/lede-17.01/package/system/procd
 procd_extra_ver=lxd-3
@@ -37,7 +37,7 @@ download_sdk() {
 	if ! test -e $sdk; then
 		test -e build_dir || mkdir build_dir
 		tar xvpf $sdk_tar -C build_dir
-		(cd build_dir && ln -sf ${dist}-sdk-* sdk)
+		(cd build_dir && ln -sfT ${dist}-sdk-${ver}-${arch}-${subarch}* $sdk_name)
 	fi
 }
 
@@ -59,7 +59,7 @@ check() {
 	dst_sum=$2
 
 	sum=$(sha256sum $dst| cut -d ' ' -f1)
-	if test $dst_sum != $sum; then
+	if test -n "$dst_sum" -a $dst_sum != $sum; then
 		echo Bad checksum $sum of $dst
 		exit 1
 	fi
@@ -77,7 +77,7 @@ download_procd() {
 
 build_procd() {
 	if ! test -e $sdk/package/lxd-procd; then
-		ln -s $(pwd)/dl/procd $sdk/package/lxd-procd
+		ln -sfT $(pwd)/dl/procd $sdk/package/lxd-procd
 	fi
 	(cd $sdk
 	./scripts/feeds update base
@@ -89,19 +89,26 @@ build_procd() {
 	local date=$(grep PKG_SOURCE_DATE:= dl/procd/Makefile | cut -d '=' -f 2)
 	local version=$(grep PKG_SOURCE_VERSION:= dl/procd/Makefile | cut -d '=' -f 2 | cut -b '1-8')
 	local release=$(grep PKG_RELEASE:= dl/procd/Makefile | cut -d '=' -f 2)
-	local procd_ipkg="$sdk/bin/targets/${arch}/${subarch}/packages/procd_${date}-${version}-${release}_${arch}_${subarch}.ipk"
-	test -e bin/packages/ || mkdir -p bin/packages/
-	ln -sf ../../$procd_ipkg bin/packages/
+	test -e bin/packages/${arch}/${subarch} || mkdir -p bin/packages/${arch}/${subarch}
+	(cd bin/packages/${arch}/${subarch} && ln -sf ../../../../$sdk/bin/targets/${arch}/${subarch}/packages/procd_${date}-${version}-${release}_*.ipk .)
 }
 
 build_tarball() {
 	export SDK="$(pwd)/${sdk}"
+	export ARCH=${arch}
+	export SUBARCH=${subarch}
 	fakeroot ./build_rootfs.sh $rootfs $metadata $lxc_tar
 }
 
 build_metadata() {
-	stat=`stat -c %Y $rootfs`
-	date=`date -R -d "@${stat}"`
+	local stat=`stat -c %Y $rootfs`
+	local date="`date -R -d "@${stat}"`"
+
+	if test ${subarch} = generic; then
+		local arch_lxd=${arch}
+	else
+		local arch_lxd=${arch}_${subarch}
+	fi
 
 	cat > $metadata <<EOF
 architecture: "$arch_lxd"
