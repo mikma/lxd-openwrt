@@ -43,5 +43,10 @@ boot() {
 			log_output -p daemon.info "ip tables loaded successfully"
 		fi
 	fi
+
+	for r in /lib/modules/*; do
+		ln -s $r /lib/modules/$(uname -r)
+		break
+	done
 	exit $res
 }
