@@ -7,7 +7,6 @@ subarch=64
 arch_dash=${arch}-${subarch}
 ver=17.01.4
 image=openwrt
-name=openwrt
 dist=lede
 
 rootfs_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-${ver}-${arch_dash}-generic-rootfs.tar.gz
@@ -143,6 +142,6 @@ build_tarball
 build_image
 
 echo \# start
-echo lxc launch $image $name
+echo "lxc launch $image <name>"
 echo \# set root password
-echo lxc exec $name passwd root
+echo "lxc exec <name> passwd root"
