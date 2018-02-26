@@ -143,8 +143,6 @@ build_tarball
 build_image
 
 echo \# start
-echo lxc launch --config "raw.lxc=lxc.aa_profile=lxc-container-default-without-dev-mounting" --profile openwrt $image $name
-#lxc config
+echo lxc launch $image $name
 echo \# set root password
 echo lxc exec $name passwd root
-#echo 'echo "148.251.78.235 downloads.openwrt.org"
