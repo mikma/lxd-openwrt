@@ -94,7 +94,6 @@ build_procd() {
 	test -e bin/packages/ || mkdir bin/packages/
 	ln -sf ../../$procd_ipkg bin/packages/
 }
-}
 
 build_tarball() {
 	export SDK="$(pwd)/${sdk}"
