@@ -23,7 +23,7 @@ procd_url=https://github.com/openwrt/openwrt/branches/lede-17.01/package/system/
 procd_extra_ver=lxd-3
 
 lxc_tar=bin/${dist}-${ver}-${arch_dash}-lxd.tar.gz
-metadata=metadata.yaml
+metadata=bin/metadata.yaml
 
 download_rootfs() {
 	download $rootfs_url $rootfs
