@@ -1,0 +1,69 @@
+diff --git a/initd/early.c b/initd/early.c
+index 7028ff8..115d8f8 100644
+--- a/initd/early.c
++++ b/initd/early.c
+@@ -27,13 +27,6 @@
+ #include "../libc-compat.h"
+ 
+ static void
+-early_dev(void)
+-{
+-	mkdev("*", 0600);
+-	mknod("/dev/null", 0666, makedev(1, 3));
+-}
+-
+-static void
+ early_console(const char *dev)
+ {
+ 	struct stat s;
+@@ -56,15 +49,6 @@ early_mounts(void)
+ {
+ 	unsigned int oldumask = umask(0);
+ 
+-	mount("proc", "/proc", "proc", MS_NOATIME | MS_NODEV | MS_NOEXEC | MS_NOSUID, 0);
+-	mount("sysfs", "/sys", "sysfs", MS_NOATIME | MS_NODEV | MS_NOEXEC | MS_NOSUID, 0);
+-	mount("cgroup", "/sys/fs/cgroup", "cgroup",  MS_NODEV | MS_NOEXEC | MS_NOSUID, 0);
+-	mount("tmpfs", "/dev", "tmpfs", MS_NOATIME | MS_NOSUID, "mode=0755,size=512K");
+-	ignore(symlink("/tmp/shm", "/dev/shm"));
+-	mkdir("/dev/pts", 0755);
+-	mount("devpts", "/dev/pts", "devpts", MS_NOATIME | MS_NOEXEC | MS_NOSUID, "mode=600");
+-	early_dev();
+-
+ 	early_console("/dev/console");
+ 	if (mount_zram_on_tmp()) {
+ 		mount("tmpfs", "/tmp", "tmpfs", MS_NOSUID | MS_NODEV | MS_NOATIME, 0);
+diff --git a/initd/zram.c b/initd/zram.c
+index c730942..8eb38a6 100644
+--- a/initd/zram.c
++++ b/initd/zram.c
+@@ -116,12 +116,6 @@ mount_zram_on_tmp(void)
+ 		waitpid(pid, NULL, 0);
+ 	}
+ 
+-	ret = mount("/dev/zram0", "/tmp", "ext4", MS_NOSUID | MS_NODEV | MS_NOATIME, "errors=continue,noquota");
+-	if (ret < 0) {
+-		ERROR("Can't mount /dev/zram0 on /tmp: %s\n", strerror(errno));
+-		return errno;
+-	}
+-
+ 	LOG("Using up to %ld kB of RAM as ZRAM storage on /mnt\n", zramsize);
+ 
+ 	ret = chmod("/tmp", 01777);
+diff --git a/plug/coldplug.c b/plug/coldplug.c
+index 5fcb9a3..b846d7f 100644
+--- a/plug/coldplug.c
++++ b/plug/coldplug.c
+@@ -43,13 +43,8 @@ void procd_coldplug(void)
+ 	char *argv[] = { "udevtrigger", NULL };
+ 	unsigned int oldumask = umask(0);
+ 
+-	umount2("/dev/pts", MNT_DETACH);
+-	umount2("/dev/", MNT_DETACH);
+-	mount("tmpfs", "/dev", "tmpfs", MS_NOSUID, "mode=0755,size=512K");
+ 	ignore(symlink("/tmp/shm", "/dev/shm"));
+-	mkdir("/dev/pts", 0755);
+ 	umask(oldumask);
+-	mount("devpts", "/dev/pts", "devpts", MS_NOEXEC | MS_NOSUID, 0);
+ 	udevtrigger.cb = udevtrigger_complete;
+ 	udevtrigger.pid = fork();
+ 	if (!udevtrigger.pid) {

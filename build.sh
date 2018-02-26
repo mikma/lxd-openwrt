@@ -19,6 +19,9 @@ sdk_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}
 sdk_sum=ef8b801f756cf2aa354198df0790ab6858b3d70b97cc3c00613fd6e5d5bb100c
 sdk_tar=dl/$(basename $sdk_url)
 
+procd_url=https://github.com/openwrt/openwrt/branches/lede-17.01/package/system/procd
+procd_extra_ver=lxd-3
+
 lxc_tar=bin/${dist}-${ver}-${arch_dash}-lxd.tar.gz
 metadata=metadata.yaml
 
@@ -56,6 +59,23 @@ check() {
 	fi
 }
 
+download_procd() {
+	if ! test -e dl/procd; then
+		svn co $procd_url dl/procd
+		sed -i -e "s/PKG_RELEASE:=\(\S\+\)/PKG_RELEASE:=\1-${procd_extra_ver}/" dl/procd/Makefile
+	fi
+
+	test -e dl/procd/patches || mkdir dl/procd/patches
+	cp -a patches/procd/* dl/procd/patches
+}
+
+build_procd() {
+	if ! test -e sdk/package/lxd-procd; then
+		ln -s $(pwd)/dl/procd sdk/package/lxd-procd
+	fi
+	make -C sdk package/lxd-procd/compile
+}
+
 build_tarball() {
 	fakeroot ./build_rootfs.sh $rootfs $metadata $lxc_tar
 }
@@ -90,6 +110,8 @@ build_image() {
 
 download_rootfs
 download_sdk
+download_procd
+build_procd
 build_metadata
 build_tarball
 build_image
