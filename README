@@ -1,0 +1,13 @@
+lxd-openwrt
+===========
+
+Scripts for building LXD images from OpenWrt rootfs tar balls. The OpenWrt SDK is used to build a patched procd package.
+
+Requirements
+------------
+Subversion is required in addition to the software needed to build the packages on the SDK.
+(Refer to https://openwrt.org/docs/guide-developer/obtain.firmware.sdk).
+
+Configuration
+-------------
+Refer to the beginning of build.sh.
