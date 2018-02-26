@@ -15,6 +15,8 @@ base=`basename $src_tar`
 dir=/tmp/build.$$
 files_dir=files/
 instroot=$dir/rootfs
+
+OPKG=sdk/staging_dir/host/bin/opkg
 export IPKG_INSTROOT=$instroot
 
 unpack() {
@@ -63,9 +65,22 @@ add_files() {
 	done
 }
 
+add_package() {
+	local ipkg=$1
+	$OPKG -o $instroot install $ipkg
+}
+
+add_packages() {
+	local dir=$1
+	for f in $dir/*.ipk; do
+		add_package $f
+	done
+}
+
 unpack
 add_files $files_dir $instroot
 add_file $metadata $metadata_dir $dir
 add_files templates/ $dir/templates/
+add_packages bin/packages/
 pack
 #pack_squashfs
