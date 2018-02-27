@@ -105,6 +105,12 @@ build_procd() {
 	if ! test -e $sdk/package/lxd-procd; then
 		ln -sfT $(pwd)/dl/procd $sdk/package/lxd-procd
 	fi
+	local date=$(grep PKG_SOURCE_DATE:= dl/procd/Makefile | cut -d '=' -f 2)
+	local version=$(grep PKG_SOURCE_VERSION:= dl/procd/Makefile | cut -d '=' -f 2 | cut -b '1-8')
+	local release=$(grep PKG_RELEASE:= dl/procd/Makefile | cut -d '=' -f 2)
+	local ipk=$sdk/bin/targets/${arch}/${subarch}/packages/procd_${date}-${version}-${release}_*.ipk
+
+	if ! test -s $ipk; then
 	(cd $sdk
 	./scripts/feeds update base
 	./scripts/feeds install libubox
@@ -112,11 +118,9 @@ build_procd() {
 	make defconfig
 	make package/lxd-procd/compile
 	)
-	local date=$(grep PKG_SOURCE_DATE:= dl/procd/Makefile | cut -d '=' -f 2)
-	local version=$(grep PKG_SOURCE_VERSION:= dl/procd/Makefile | cut -d '=' -f 2 | cut -b '1-8')
-	local release=$(grep PKG_RELEASE:= dl/procd/Makefile | cut -d '=' -f 2)
+	fi
 	test -e bin/packages/${arch}/${subarch} || mkdir -p bin/packages/${arch}/${subarch}
-	(cd bin/packages/${arch}/${subarch} && ln -sf ../../../../$sdk/bin/targets/${arch}/${subarch}/packages/procd_${date}-${version}-${release}_*.ipk .)
+	(cd bin/packages/${arch}/${subarch} && ln -sf ../../../../$ipk .)
 }
 
 build_tarball() {
