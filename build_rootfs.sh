@@ -2,15 +2,35 @@
 
 set -e
 
-if [ $# -ne 3 ]; then
-	echo "Usage: $0 <src tar> <metadata.yaml> <dst file>"
+usage() {
+	echo "Usage: $0 [-o|--output <dst file>] <src tar> <metadata.yaml>"
 	exit 1
+}
+
+dst_file=/dev/stdout
+
+temp=$(getopt -o "o:p:" -l "output:,packages:,help" -- "$@")
+eval set -- "$temp"
+while true; do
+	case "$1" in
+		-p|--packages)
+			packages="$2"; shift 2;;
+		-o)
+			dst_file="$2"; shift 2;;
+		--help)
+			usage;;
+		--)
+			shift; break;;
+	esac
+done
+
+if [ $# -ne 2 ]; then
+	usage
 fi
 
 src_tar=$1
 metadata_dir=`dirname $2`
 metadata=`basename $2`
-dst_file=$3
 base=`basename $src_tar`
 dir=/tmp/build.$$
 files_dir=files/
@@ -87,11 +107,20 @@ update_packages() {
 	done
 }
 
+install_packages() {
+	local packages="$1"
+	for pkg in $packages; do
+		echo Install $pkg
+		$OPKG install $pkg
+	done
+}
+
 unpack
 add_files $files_dir $instroot
 add_file $metadata $metadata_dir $dir
 add_files templates/ $dir/templates/
 add_packages bin/packages/${ARCH}/${SUBARCH}
 update_packages
+install_packages "$packages"
 pack
 #pack_squashfs
