@@ -10,11 +10,9 @@ image=openwrt
 dist=lede
 
 rootfs_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-${ver}-${arch_dash}-generic-rootfs.tar.gz
-rootfs_sum=43886c6b4a555719603286ceb1733ea2386d43b095ab0da9be35816cd2ad8959
 rootfs=dl/$(basename $rootfs_url)
 
 sdk_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-sdk-${ver}-${arch}-${subarch}_gcc-5.4.0_musl-1.1.16.Linux-x86_64.tar.xz
-sdk_sum=ef8b801f756cf2aa354198df0790ab6858b3d70b97cc3c00613fd6e5d5bb100c
 sdk_tar=dl/$(basename $sdk_url)
 sdk_name=sdk-${ver}-${arch}-${subarch}
 sdk=build_dir/${sdk_name}
@@ -27,12 +25,12 @@ metadata=bin/metadata.yaml
 
 download_rootfs() {
 	download $rootfs_url $rootfs
-	check $rootfs $rootfs_sum
+	check $rootfs $rootfs_url
 }
 
 download_sdk() {
 	download $sdk_url $sdk_tar
-	check $sdk_tar $sdk_sum
+	check $sdk_tar $sdk_url
 	if ! test -e $sdk; then
 		test -e build_dir || mkdir build_dir
 		tar xvpf $sdk_tar -C build_dir
@@ -53,12 +51,30 @@ download() {
 	fi
 }
 
+download_sums() {
+	local url=$1
+
+	local sums_url="$(dirname $url)/sha256sums"
+	local sums_file="dl/sha256sums_$(echo $sums_url|md5sum|cut -d ' ' -f 1)"
+
+	if ! test -e $sums_file; then
+		wget -O $sums_file $sums_url
+	fi
+
+	return=$sums_file
+}
+
 check() {
-	dst=$1
-	dst_sum=$2
+	local dst=$1
+	local dst_url=$2
+
+	download_sums $dst_url
+	local sums=$return
+
+	local dst_sum="$(grep $(basename $dst_url) $sums|cut -d ' ' -f 1)"
 
 	sum=$(sha256sum $dst| cut -d ' ' -f1)
-	if test -n "$dst_sum" -a $dst_sum != $sum; then
+	if test -z "$dst_sum" -o $dst_sum != $sum; then
 		echo Bad checksum $sum of $dst
 		exit 1
 	fi
