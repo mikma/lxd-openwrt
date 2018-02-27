@@ -41,11 +41,11 @@ download_sdk() {
 	check $sdk_tar $sdk_url
 
 	# global $sdk
-	sdk="build_dir/$(tar tpf $sdk_tar|head -1)"
+	sdk="build_dir/$(tar tf $sdk_tar|head -1)"
 
 	if ! test -e $sdk; then
 		test -e build_dir || mkdir build_dir
-		tar xvpf $sdk_tar -C build_dir
+		tar xvf $sdk_tar -C build_dir
 	fi
 }
 
@@ -129,7 +129,7 @@ build_tarball() {
 build_metadata() {
 	local stat=`stat -c %Y $rootfs`
 	local date="`date -d \"@${stat}\" +%F`"
-	local desc="$(tar xpf $rootfs ./etc/openwrt_release -O|grep DISTRIB_DESCRIPTION|sed -e "s/.*='\(.*\)'/\1/")"
+	local desc="$(tar xf $rootfs ./etc/openwrt_release -O|grep DISTRIB_DESCRIPTION|sed -e "s/.*='\(.*\)'/\1/")"
 
 	if test ${subarch} = generic; then
 		local arch_lxd=${arch}
