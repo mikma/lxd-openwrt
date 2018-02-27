@@ -45,8 +45,11 @@ download_sdk() {
 	check $sdk_tar $sdk_url
 	if ! test -e $sdk; then
 		test -e build_dir || mkdir build_dir
-		tar xvpf $sdk_tar -C build_dir
-		(cd build_dir && ln -sfT ${dist}-sdk-${ver}-${arch}-${subarch}* $sdk_name)
+		local sdk_dir=$(tar tpf $sdk_tar|head -1)
+		if ! test -e build_dir/$sdk_dir; then
+			tar xvpf $sdk_tar -C build_dir
+		fi
+		(cd build_dir && ln -sfT $sdk_dir $sdk_name)
 	fi
 }
 
