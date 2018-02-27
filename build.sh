@@ -129,7 +129,7 @@ build_tarball() {
 build_metadata() {
 	local stat=`stat -c %Y $rootfs`
 	local date="`date -d \"@${stat}\" +%F`"
-	local desc=$(tar xpf $rootfs ./etc/openwrt_release -O|grep DISTRIB_DESCRIPTION|cut -d '=' -f 2)
+	local desc="$(tar xpf $rootfs ./etc/openwrt_release -O|grep DISTRIB_DESCRIPTION|sed -e "s/.*='\(.*\)'/\1/")"
 
 	if test ${subarch} = generic; then
 		local arch_lxd=${arch}
