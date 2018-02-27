@@ -5,7 +5,6 @@ set -e
 arch=x86
 subarch=64
 ver=17.01.4
-image=openwrt
 dist=lede
 
 
@@ -160,7 +159,7 @@ EOF
 }
 
 build_image() {
-	lxc image import $lxc_tar --alias $image
+	lxc image import $lxc_tar
 }
 
 download_rootfs
