@@ -4,7 +4,6 @@ set -e
 
 arch=x86
 subarch=64
-arch_dash=${arch}-${subarch}
 ver=17.01.4
 image=openwrt
 dist=lede
@@ -16,14 +15,14 @@ sdk=build_dir/${sdk_name}
 procd_url=https://github.com/openwrt/openwrt/branches/lede-17.01/package/system/procd
 procd_extra_ver=lxd-3
 
-lxc_tar=bin/${dist}-${ver}-${arch_dash}-lxd.tar.gz
+lxc_tar=bin/${dist}-${ver}-${arch}-${subarch}-lxd.tar.gz
 metadata=bin/metadata.yaml
 
 download_rootfs() {
 	if test $ver = snapshot; then
-		local rootfs_url=https://downloads.openwrt.org/snapshots/targets/${arch}/${subarch}/${dist}-${arch_dash}-generic-rootfs.tar.gz
+		local rootfs_url=https://downloads.openwrt.org/snapshots/targets/${arch}/${subarch}/${dist}-${arch}-${subarch}-generic-rootfs.tar.gz
 	else
-		local rootfs_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-${ver}-${arch_dash}-generic-rootfs.tar.gz
+		local rootfs_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-${ver}-${arch}-${subarch}-generic-rootfs.tar.gz
 	fi
 
 	# global $rootfs
