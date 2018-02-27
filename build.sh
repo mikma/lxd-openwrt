@@ -8,8 +8,6 @@ ver=17.01.4
 dist=lede
 
 
-sdk_name=sdk-${ver}-${arch}-${subarch}
-sdk=build_dir/${sdk_name}
 
 procd_url=https://github.com/openwrt/openwrt/branches/lede-17.01/package/system/procd
 procd_extra_ver=lxd-3
@@ -41,13 +39,13 @@ download_sdk() {
 
 	download $sdk_url $sdk_tar
 	check $sdk_tar $sdk_url
+
+	# global $sdk
+	sdk="build_dir/$(tar tpf $sdk_tar|head -1)"
+
 	if ! test -e $sdk; then
 		test -e build_dir || mkdir build_dir
-		local sdk_dir=$(tar tpf $sdk_tar|head -1)
-		if ! test -e build_dir/$sdk_dir; then
-			tar xvpf $sdk_tar -C build_dir
-		fi
-		(cd build_dir && ln -sfT $sdk_dir $sdk_name)
+		tar xvpf $sdk_tar -C build_dir
 	fi
 }
 
