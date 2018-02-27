@@ -7,7 +7,34 @@ subarch=64
 ver=17.01.4
 dist=lede
 
+usage() {
+	echo "Usage: $0 [-v|--version <version>] [-p|--packages <packages>] [--help]"
+	exit 1
+}
 
+temp=$(getopt -o "v:p:" -l "version:,packages:,help" -- "$@")
+eval set -- "$temp"
+while true; do
+	case "$1" in
+	-v|--version)
+		ver="$2"; shift 2
+		if test ver=snapshot; then
+			dist=openwrt
+		else
+			dist=lede
+		fi;;
+	-p|--packages)
+		packages="$2"; shift 2;;
+	--help)
+		usage;;
+	--)
+		shift; break;;
+	esac
+done
+
+if [ $# -ne 0 ]; then
+        usage
+fi
 
 procd_url=https://github.com/openwrt/openwrt/branches/lede-17.01/package/system/procd
 procd_extra_ver=lxd-3
