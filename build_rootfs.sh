@@ -57,6 +57,10 @@ pack_squashfs() {
 	mksquashfs $dir $dst_file
 }
 
+disable_root() {
+	sed -i -e 's/^root::/root:*:/' $instroot/etc/shadow
+}
+
 add_file() {
     file=$1
     src_dir=$2
@@ -118,6 +122,7 @@ install_packages() {
 }
 
 unpack
+disable_root
 add_files $files_dir $instroot
 if test -n "$files"; then
 	add_files $files $instroot
