@@ -18,7 +18,7 @@ instroot=$dir/rootfs
 cache=dl/packages/$ARCH/$SUBARCH
 
 test -e $cache || mkdir -p $cache
-OPKG="$SDK/staging_dir/host/bin/opkg -o $instroot --cache $cache"
+OPKG="env LD_PRELOAD= $SDK/staging_dir/host/bin/opkg -o $instroot --cache $cache"
 export IPKG_INSTROOT=$instroot
 
 unpack() {
