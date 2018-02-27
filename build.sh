@@ -9,11 +9,7 @@ ver=17.01.4
 image=openwrt
 dist=lede
 
-rootfs_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-${ver}-${arch_dash}-generic-rootfs.tar.gz
-rootfs=dl/$(basename $rootfs_url)
 
-sdk_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-sdk-${ver}-${arch}-${subarch}_gcc-5.4.0_musl-1.1.16.Linux-x86_64.tar.xz
-sdk_tar=dl/$(basename $sdk_url)
 sdk_name=sdk-${ver}-${arch}-${subarch}
 sdk=build_dir/${sdk_name}
 
@@ -24,11 +20,27 @@ lxc_tar=bin/${dist}-${ver}-${arch_dash}-lxd.tar.gz
 metadata=bin/metadata.yaml
 
 download_rootfs() {
+	if test $ver = snapshot; then
+		local rootfs_url=https://downloads.openwrt.org/snapshots/targets/${arch}/${subarch}/${dist}-${arch_dash}-generic-rootfs.tar.gz
+	else
+		local rootfs_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-${ver}-${arch_dash}-generic-rootfs.tar.gz
+	fi
+
+	# global $rootfs
+	rootfs=dl/$(basename $rootfs_url)
+
 	download $rootfs_url $rootfs
 	check $rootfs $rootfs_url
 }
 
 download_sdk() {
+	if test $ver = snapshot; then
+		local sdk_url=https://downloads.openwrt.org/snapshots/targets/${arch}/${subarch}/${dist}-sdk-${arch}-${subarch}_gcc-7.3.0_musl.Linux-x86_64.tar.xz
+	else
+		local sdk_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-sdk-${ver}-${arch}-${subarch}_gcc-5.4.0_musl-1.1.16.Linux-x86_64.tar.xz
+	fi
+	local sdk_tar=dl/$(basename $sdk_url)
+
 	download $sdk_url $sdk_tar
 	check $sdk_tar $sdk_url
 	if ! test -e $sdk; then
