@@ -8,11 +8,11 @@ ver=17.01.4
 dist=lede
 
 usage() {
-	echo "Usage: $0 [-v|--version <version>] [-p|--packages <packages>] [--help]"
+	echo "Usage: $0 [-v|--version <version>] [-p|--packages <packages>] [-f|--files] [--help]"
 	exit 1
 }
 
-temp=$(getopt -o "v:p:" -l "version:,packages:,help" -- "$@")
+temp=$(getopt -o "v:p:f:" -l "version:,packages:,files:,help" -- "$@")
 eval set -- "$temp"
 while true; do
 	case "$1" in
@@ -25,6 +25,8 @@ while true; do
 		fi;;
 	-p|--packages)
 		packages="$2"; shift 2;;
+	-f|--files)
+		files="$2"; shift 2;;
 	--help)
 		usage;;
 	--)
@@ -154,7 +156,7 @@ build_tarball() {
 	export SDK="$(pwd)/${sdk}"
 	export ARCH=${arch}
 	export SUBARCH=${subarch}
-	fakeroot ./build_rootfs.sh $rootfs $metadata -o $lxc_tar --packages="${packages}"
+	fakeroot ./build_rootfs.sh $rootfs $metadata -o $lxc_tar --packages="${packages}" --files="${files}"
 }
 
 build_metadata() {

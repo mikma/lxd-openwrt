@@ -3,20 +3,22 @@
 set -e
 
 usage() {
-	echo "Usage: $0 [-o|--output <dst file>] <src tar> <metadata.yaml>"
+	echo "Usage: $0 [-o|--output <dst file>] [-p|--packages <packages>] [-f|--files <files>] <src tar> <metadata.yaml>"
 	exit 1
 }
 
 dst_file=/dev/stdout
 
-temp=$(getopt -o "o:p:" -l "output:,packages:,help" -- "$@")
+temp=$(getopt -o "o:p:f:" -l "output:,packages:,files:,help" -- "$@")
 eval set -- "$temp"
 while true; do
 	case "$1" in
 		-p|--packages)
 			packages="$2"; shift 2;;
-		-o)
+		-o|--output)
 			dst_file="$2"; shift 2;;
+		-f|--files)
+			files="$2"; shift 2;;
 		--help)
 			usage;;
 		--)
@@ -117,6 +119,9 @@ install_packages() {
 
 unpack
 add_files $files_dir $instroot
+if test -n "$files"; then
+	add_files $files $instroot
+fi
 add_file $metadata $metadata_dir $dir
 add_files templates/ $dir/templates/
 add_packages bin/packages/${ARCH}/${SUBARCH}
