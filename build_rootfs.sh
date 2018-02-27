@@ -15,8 +15,10 @@ base=`basename $src_tar`
 dir=/tmp/build.$$
 files_dir=files/
 instroot=$dir/rootfs
+cache=dl/packages/$ARCH/$SUBARCH
 
-OPKG=$SDK/staging_dir/host/bin/opkg
+test -e $cache || mkdir -p $cache
+OPKG="$SDK/staging_dir/host/bin/opkg -o $instroot --cache $cache"
 export IPKG_INSTROOT=$instroot
 
 unpack() {
@@ -67,7 +69,7 @@ add_files() {
 
 add_package() {
 	local ipkg=$1
-	$OPKG -o $instroot install $ipkg
+	$OPKG install $ipkg
 }
 
 add_packages() {
@@ -77,10 +79,20 @@ add_packages() {
 	done
 }
 
+update_packages() {
+	$OPKG update
+	local upgradable="$($OPKG list-upgradable|cut -d ' ' -f 1)"
+	for pkg in $upgradable; do
+		echo Upgrading $pkg
+		$OPKG upgrade $pkg
+	done
+}
+
 unpack
 add_files $files_dir $instroot
 add_file $metadata $metadata_dir $dir
 add_files templates/ $dir/templates/
 add_packages bin/packages/${ARCH}/${SUBARCH}
+update_packages
 pack
 #pack_squashfs
