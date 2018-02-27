@@ -123,14 +123,14 @@ install_packages() {
 
 unpack
 disable_root
-add_files $files_dir $instroot
-if test -n "$files"; then
-	add_files $files $instroot
-fi
 add_file $metadata $metadata_dir $dir
 add_files templates/ $dir/templates/
 add_packages bin/packages/${ARCH}/${SUBARCH}
 update_packages
 install_packages "$packages"
+add_files $files_dir $instroot
+if test -n "$files"; then
+	add_files $files $instroot
+fi
 pack
 #pack_squashfs
