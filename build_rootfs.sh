@@ -77,7 +77,7 @@ add_file() {
 	if [ "$foo" = "./etc/init.d" ]; then
 	    echo Enabling $file
 	    set +e
-	    sh $instroot/etc/rc.common $src enable
+	    env IPKG_INSTROOT=$instroot sh $instroot/etc/rc.common $dst enable
 	    set -e
 	fi
     fi
