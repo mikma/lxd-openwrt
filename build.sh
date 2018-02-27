@@ -131,7 +131,7 @@ build_tarball() {
 
 build_metadata() {
 	local stat=`stat -c %Y $rootfs`
-	local date="`date -R -d \"@${stat}\"`"
+	local date="`date -d \"@${stat}\" +%F`"
 
 	if test ${subarch} = generic; then
 		local arch_lxd=${arch}
@@ -144,7 +144,7 @@ architecture: "$arch_lxd"
 creation_date: $(date +%s)
 properties:
  architecture: "$arch_lxd"
- description: "OpenWrt $ver $arch_lxd ($date)"
+ description: "OpenWrt $ver ($date)"
  os: "OpenWrt"
  release: "$ver"
 templates:
