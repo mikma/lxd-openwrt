@@ -132,7 +132,7 @@ build_tarball() {
 
 build_metadata() {
 	local stat=`stat -c %Y $rootfs`
-	local date="`date -R -d "@${stat}"`"
+	local date="`date -R -d \"@${stat}\"`"
 
 	if test ${subarch} = generic; then
 		local arch_lxd=${arch}
