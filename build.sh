@@ -156,7 +156,8 @@ build_tarball() {
 	export SDK="$(pwd)/${sdk}"
 	export ARCH=${arch}
 	export SUBARCH=${subarch}
-	fakeroot ./build_rootfs.sh $rootfs $metadata -o $lxc_tar --packages="${packages}" --files="${files}"
+	local opts="-m $metadata"
+	fakeroot ./build_rootfs.sh $rootfs $opts -o $lxc_tar --packages="${packages}" --files="${files}"
 }
 
 build_metadata() {

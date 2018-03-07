@@ -3,13 +3,13 @@
 set -e
 
 usage() {
-	echo "Usage: $0 [-o|--output <dst file>] [-p|--packages <packages>] [-f|--files <files>] <src tar> <metadata.yaml>"
+	echo "Usage: $0 [-o|--output <dst file>] [-p|--packages <packages>] [-f|--files <files>] [-m|--metadata <metadata.yaml>] <src tar>"
 	exit 1
 }
 
 dst_file=/dev/stdout
 
-temp=$(getopt -o "o:p:f:" -l "output:,packages:,files:,help" -- "$@")
+temp=$(getopt -o "o:p:f:m:" -l "output:,packages:,files:,metadata:,help" -- "$@")
 eval set -- "$temp"
 while true; do
 	case "$1" in
@@ -19,6 +19,10 @@ while true; do
 			dst_file="$2"; shift 2;;
 		-f|--files)
 			files="$2"; shift 2;;
+		-m|--metadata)
+			metadata=`basename $2`
+			metadata_dir=`dirname $2`
+			shift 2;;
 		--help)
 			usage;;
 		--)
@@ -26,13 +30,11 @@ while true; do
 	esac
 done
 
-if [ $# -ne 2 ]; then
+if [ $# -ne 1 ]; then
 	usage
 fi
 
 src_tar=$1
-metadata_dir=`dirname $2`
-metadata=`basename $2`
 base=`basename $src_tar`
 dir=/tmp/build.$$
 files_dir=files/
@@ -49,7 +51,11 @@ unpack() {
 
 pack() {
 	echo Pack rootfs
-	(cd $dir && tar -cz *) > $dst_file
+	if test -n "$metadata"; then
+		(cd $dir && tar -cz *) > $dst_file
+	else
+		(cd $dir/rootfs && tar -cz *) > $dst_file
+	fi
 }
 
 pack_squashfs() {
@@ -123,7 +129,9 @@ install_packages() {
 
 unpack
 disable_root
-add_file $metadata $metadata_dir $dir
+if test -n "$metadata"; then
+	add_file $metadata $metadata_dir $dir
+fi
 add_files templates/ $dir/templates/
 add_packages bin/packages/${ARCH}/${SUBARCH}
 update_packages
