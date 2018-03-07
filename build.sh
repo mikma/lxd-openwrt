@@ -157,7 +157,7 @@ build_tarball() {
 	export ARCH=${arch}
 	export SUBARCH=${subarch}
 	local opts="-m $metadata"
-	fakeroot ./build_rootfs.sh $rootfs $opts -o $lxc_tar --packages="${packages}" --files="${files}"
+	fakeroot scripts/build_rootfs.sh $rootfs $opts -o $lxc_tar --packages="${packages}" --files="${files}"
 }
 
 build_metadata() {
