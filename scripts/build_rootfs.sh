@@ -3,7 +3,7 @@
 set -e
 
 usage() {
-	echo "Usage: $0 [-a|--arch <arch>] [-s|--subarch <subarch>] [-o|--output <dst file>] [-p|--packages <packages>] [-f|--files <files>] [-m|--metadata <metadata.yaml>] <src tar>"
+	echo "Usage: $0 [-a|--arch <arch>] [-s|--subarch <subarch>] [-o|--output <dst file>] [-p|--packages <packages>] [-f|--files <files>] [-m|--metadata <metadata.yaml>] [-u|--upgrade] <src tar>"
 	exit 1
 }
 
@@ -14,8 +14,9 @@ dst_file=/dev/stdout
 files=
 metadata=
 metadata_dir=
+upgrade=
 
-temp=$(getopt -o "a:o:p:s:f:m:" -l "arch:,output:,packages:,subarch:,files:,metadata:,help" -- "$@")
+temp=$(getopt -o "a:o:p:s:f:m:u:" -l "arch:,output:,packages:,subarch:,files:,metadata:,upgrade,help" -- "$@")
 eval set -- "$temp"
 while true; do
 	case "$1" in
@@ -33,6 +34,8 @@ while true; do
 			metadata=`basename $2`
 			metadata_dir=`dirname $2`
 			shift 2;;
+		-u|--upgrade)
+			upgrade=1; shift 1;;
 		--help)
 			usage;;
 		--)
@@ -122,7 +125,7 @@ add_packages() {
 
 update_packages() {
 	$OPKG update
-	local upgradable="$($OPKG list-upgradable|cut -d ' ' -f 1)"
+	local upgradable="$($OPKG list-upgradable|grep -e '^.* - .* - .*'|cut -d ' ' -f 1)"
 	for pkg in $upgradable; do
 		echo Upgrading $pkg
 		$OPKG upgrade $pkg
@@ -144,7 +147,9 @@ if test -n "$metadata"; then
 fi
 add_files templates/ $dir/templates/
 add_packages bin/packages/${arch}/${subarch}
-update_packages
+if test -n "$upgrade"; then
+	update_packages
+fi
 install_packages "$packages"
 add_files $files_dir $instroot
 if test -n "$files"; then

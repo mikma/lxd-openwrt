@@ -155,6 +155,9 @@ build_procd() {
 build_tarball() {
 	export SDK="$(pwd)/${sdk}"
 	local opts="-m $metadata"
+	if test ${ver} != snapshot; then
+		opts="$opts --upgrade"
+	fi
 	fakeroot scripts/build_rootfs.sh $rootfs $opts -o $lxc_tar --arch=${arch} --subarch=${subarch} --packages="${packages}" --files="${files}"
 }
 
