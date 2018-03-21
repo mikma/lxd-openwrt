@@ -113,7 +113,7 @@ add_files() {
 
 add_package() {
 	local ipkg=$1
-	$OPKG install $ipkg
+	$OPKG install --force-downgrade $ipkg
 }
 
 add_packages() {
