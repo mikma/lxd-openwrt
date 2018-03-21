@@ -123,8 +123,11 @@ add_packages() {
 	done
 }
 
-update_packages() {
+opkg_update() {
 	$OPKG update
+}
+
+update_packages() {
 	local upgradable="$($OPKG list-upgradable|grep -e '^.* - .* - .*'|cut -d ' ' -f 1)"
 	for pkg in $upgradable; do
 		echo Upgrading $pkg
@@ -147,6 +150,7 @@ if test -n "$metadata"; then
 fi
 add_files templates/ $dir/templates/
 add_packages bin/packages/${arch}/${subarch}
+opkg_update
 if test -n "$upgrade"; then
 	update_packages
 fi
