@@ -3,16 +3,26 @@
 set -e
 
 usage() {
-	echo "Usage: $0 [-o|--output <dst file>] [-p|--packages <packages>] [-f|--files <files>] [-m|--metadata <metadata.yaml>] <src tar>"
+	echo "Usage: $0 [-a|--arch <arch>] [-s|--subarch <subarch>] [-o|--output <dst file>] [-p|--packages <packages>] [-f|--files <files>] [-m|--metadata <metadata.yaml>] <src tar>"
 	exit 1
 }
 
+arch=x86
+subarch=64
+packages=
 dst_file=/dev/stdout
+files=
+metadata=
+metadata_dir=
 
-temp=$(getopt -o "o:p:f:m:" -l "output:,packages:,files:,metadata:,help" -- "$@")
+temp=$(getopt -o "a:o:p:s:f:m:" -l "arch:,output:,packages:,subarch:,files:,metadata:,help" -- "$@")
 eval set -- "$temp"
 while true; do
 	case "$1" in
+		-a|--arch)
+			arch="$2"; shift 2;;
+		-s|--subarch)
+			subarch="$2"; shift 2;;
 		-p|--packages)
 			packages="$2"; shift 2;;
 		-o|--output)
@@ -39,7 +49,7 @@ base=`basename $src_tar`
 dir=/tmp/build.$$
 files_dir=files/
 instroot=$dir/rootfs
-cache=dl/packages/$ARCH/$SUBARCH
+cache=dl/packages/$arch/$subarch
 
 test -e $cache || mkdir -p $cache
 OPKG="env LD_PRELOAD= IPKG_NO_SCRIPT=1 IPKG_INSTROOT=$instroot $SDK/staging_dir/host/bin/opkg -o $instroot --cache $cache"
@@ -133,7 +143,7 @@ if test -n "$metadata"; then
 	add_file $metadata $metadata_dir $dir
 fi
 add_files templates/ $dir/templates/
-add_packages bin/packages/${ARCH}/${SUBARCH}
+add_packages bin/packages/${arch}/${subarch}
 update_packages
 install_packages "$packages"
 add_files $files_dir $instroot
