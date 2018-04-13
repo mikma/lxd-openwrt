@@ -2,20 +2,21 @@
 
 set -e
 
-arch=x86
-subarch=64
+arch_lxd=x86_64
 ver=17.01.4
 dist=lede
 
 usage() {
-	echo "Usage: $0 [-v|--version <version>] [-p|--packages <packages>] [-f|--files] [--help]"
+	echo "Usage: $0 [-a|--arch <x86_64|i686>] [-v|--version <version>] [-p|--packages <packages>] [-f|--files] [--help]"
 	exit 1
 }
 
-temp=$(getopt -o "v:p:f:" -l "version:,packages:,files:,help" -- "$@")
+temp=$(getopt -o "a:v:p:f:" -l "arch:,version:,packages:,files:,help" -- "$@")
 eval set -- "$temp"
 while true; do
 	case "$1" in
+	-a|--arch)
+		arch_lxd="$2"; shift 2;;
 	-v|--version)
 		ver="$2"; shift 2
 		if test ver=snapshot; then
@@ -37,6 +38,20 @@ done
 if [ $# -ne 0 ]; then
         usage
 fi
+
+case "$arch_lxd" in
+	i686)
+		arch=x86
+		subarch=generic
+		;;
+	x86_64)
+		arch=x86
+		subarch=64
+		;;
+	*)
+		usage
+		;;
+esac
 
 procd_url=https://github.com/openwrt/openwrt/branches/lede-17.01/package/system/procd
 procd_extra_ver=lxd-3
@@ -165,12 +180,6 @@ build_metadata() {
 	local stat=`stat -c %Y $rootfs`
 	local date="`date -d \"@${stat}\" +%F`"
 	local desc="$(tar xf $rootfs ./etc/openwrt_release -O|grep DISTRIB_DESCRIPTION|sed -e "s/.*='\(.*\)'/\1/")"
-
-	if test ${subarch} = generic; then
-		local arch_lxd=${arch}
-	else
-		local arch_lxd=${arch}_${subarch}
-	fi
 
 	cat > $metadata <<EOF
 architecture: "$arch_lxd"
