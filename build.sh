@@ -53,7 +53,15 @@ case "$arch_lxd" in
 		;;
 esac
 
-procd_url=https://github.com/openwrt/openwrt/branches/lede-17.01/package/system/procd
+branch_ver=$(echo "${ver}"|cut -d- -f1|cut -d. -f1,2)
+
+if test $ver = snapshot; then
+	openwrt_branch=openwrt-18.06
+else
+	openwrt_branch=${dist}-${branch_ver}
+fi
+
+procd_url=https://github.com/openwrt/openwrt/branches/${openwrt_branch}/package/system/procd
 procd_extra_ver=lxd-3
 
 lxc_tar=bin/${dist}-${ver}-${arch}-${subarch}-lxd.tar.gz
@@ -76,8 +84,10 @@ download_rootfs() {
 download_sdk() {
 	if test $ver = snapshot; then
 		local sdk_url=https://downloads.openwrt.org/snapshots/targets/${arch}/${subarch}/${dist}-sdk-${arch}-${subarch}_gcc-7.3.0_musl.Linux-x86_64.tar.xz
-	else
+	elif test $ver \< 18; then
 		local sdk_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-sdk-${ver}-${arch}-${subarch}_gcc-5.4.0_musl-1.1.16.Linux-x86_64.tar.xz
+	else
+		local sdk_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-sdk-${ver}-${arch}-${subarch}_gcc-7.3.0_musl.Linux-x86_64.tar.xz
 	fi
 	local sdk_tar=dl/$(basename $sdk_url)
 
@@ -136,23 +146,30 @@ check() {
 }
 
 download_procd() {
-	if ! test -e dl/procd; then
-		svn co $procd_url dl/procd
-		sed -i -e "s/PKG_RELEASE:=\(\S\+\)/PKG_RELEASE:=\1-${procd_extra_ver}/" dl/procd/Makefile
+	if ! test -e dl/procd-${openwrt_branch}; then
+		svn co $procd_url dl/procd-${openwrt_branch}
+		sed -i -e "s/PKG_RELEASE:=\(\S\+\)/PKG_RELEASE:=\1-${procd_extra_ver}/" dl/procd-${openwrt_branch}/Makefile
 	fi
 
-	test -e dl/procd/patches || mkdir dl/procd/patches
-	cp -a patches/procd/* dl/procd/patches
+	test -e dl/procd-${openwrt_branch}/patches || mkdir dl/procd-${openwrt_branch}/patches
+	cp -a patches/procd-${openwrt_branch}/* dl/procd-${openwrt_branch}/patches
 }
 
 build_procd() {
-	if ! test -e $sdk/package/lxd-procd; then
-		ln -sfT $(pwd)/dl/procd $sdk/package/lxd-procd
+	rm $sdk/package/lxd-procd||true
+	ln -sfT $(pwd)/dl/procd-${openwrt_branch} $sdk/package/lxd-procd
+
+	local date=$(grep PKG_SOURCE_DATE:= dl/procd-${openwrt_branch}/Makefile | cut -d '=' -f 2)
+	local version=$(grep PKG_SOURCE_VERSION:= dl/procd-${openwrt_branch}/Makefile | cut -d '=' -f 2 | cut -b '1-8')
+	local release=$(grep PKG_RELEASE:= dl/procd-${openwrt_branch}/Makefile | cut -d '=' -f 2)
+	local ipk_old=$sdk/bin/targets/${arch}/${subarch}/packages/procd_${date}-${version}-${release}_*.ipk
+	local ipk_new=$sdk/bin/packages/${arch_lxd}/base/procd_${date}-${version}-${release}_*.ipk
+
+	if test $ver \< 18; then
+		local ipk=$ipk_old
+	else
+		local ipk=$ipk_new
 	fi
-	local date=$(grep PKG_SOURCE_DATE:= dl/procd/Makefile | cut -d '=' -f 2)
-	local version=$(grep PKG_SOURCE_VERSION:= dl/procd/Makefile | cut -d '=' -f 2 | cut -b '1-8')
-	local release=$(grep PKG_RELEASE:= dl/procd/Makefile | cut -d '=' -f 2)
-	local ipk=$sdk/bin/targets/${arch}/${subarch}/packages/procd_${date}-${version}-${release}_*.ipk
 
 	if ! test -s $ipk; then
 	(cd $sdk
