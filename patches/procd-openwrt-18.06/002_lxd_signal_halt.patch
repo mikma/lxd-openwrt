@@ -1,1 +1,28 @@
-../procd-lede-17.01/002_lxd_signal_halt.patch
+--- a/initd/init.c.orig	2018-07-01 22:24:02.065349814 +0000
++++ b/initd/init.c	2018-07-01 22:23:02.837917724 +0000
+@@ -77,6 +77,7 @@
+ 	sigaction(SIGTERM, &sa_shutdown, NULL);
+ 	sigaction(SIGUSR1, &sa_shutdown, NULL);
+ 	sigaction(SIGUSR2, &sa_shutdown, NULL);
++	sigaction(SIGPWR, &sa_shutdown, NULL);
+ 
+ 	early();
+ 	cmdline();
+--- a/signal.c.orig	2018-03-28 09:29:49.000000000 +0000
++++ b/signal.c	2018-07-01 22:23:23.357720944 +0000
+@@ -44,6 +44,7 @@
+ 		break;
+ 	case SIGUSR1:
+ 	case SIGUSR2:
++	case SIGPWR:
+ 		event = RB_POWER_OFF;
+ 		msg = "poweroff";
+ 		break;
+@@ -90,6 +91,7 @@
+ 	sigaction(SIGINT, &sa_shutdown, NULL);
+ 	sigaction(SIGUSR1, &sa_shutdown, NULL);
+ 	sigaction(SIGUSR2, &sa_shutdown, NULL);
++	sigaction(SIGPWR, &sa_shutdown, NULL);
+ 	sigaction(SIGSEGV, &sa_crash, NULL);
+ 	sigaction(SIGBUS, &sa_crash, NULL);
+ 	sigaction(SIGHUP, &sa_dummy, NULL);
