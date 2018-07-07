@@ -172,11 +172,11 @@ build_procd() {
 	fi
 
 	if ! test -s $ipk; then
-	(cd $sdk
-	./scripts/feeds update base
-	./scripts/feeds install libubox
-	./scripts/feeds install ubus
-	make defconfig
+	(cd $sdk &&
+	./scripts/feeds update base &&
+	./scripts/feeds install libubox && test -d package/feeds/base/libubox &&
+	./scripts/feeds install ubus && test -d package/feeds/base/ubus &&
+	make defconfig &&
 	make package/lxd-procd/compile
 	)
 	fi
