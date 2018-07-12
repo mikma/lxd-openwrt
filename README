@@ -5,9 +5,12 @@ Scripts for building LXD images from OpenWrt rootfs tarballs. The OpenWrt SDK is
 
 Requirements
 ------------
-Subversion is required in addition to the software needed to build packages on the SDK.
-(Refer to https://openwrt.org/docs/guide-developer/obtain.firmware.sdk).
+It's recommended you use Debian or Ubuntu on the build system. The following additional packages are required on Ubuntu 18.04:
+
+* build-essential
+* subversion
+* fakeroot
 
 Configuration
 -------------
-Refer to the beginning of build.sh.
+Refer to the top of build.sh.
