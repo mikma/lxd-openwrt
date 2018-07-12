@@ -6,6 +6,9 @@ arch_lxd=x86_64
 ver=17.01.4
 dist=lede
 
+# Workaround for Debian/Ubuntu systems which use C.UTF-8 which is unsupported by OpenWrt
+export LC_TIME=C
+
 usage() {
 	echo "Usage: $0 [-a|--arch <x86_64|i686>] [-v|--version <version>] [-p|--packages <packages>] [-f|--files] [--help]"
 	exit 1
