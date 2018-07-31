@@ -1,0 +1,14 @@
+#!/bin/sh
+#
+
+. /lib/functions/uci-defaults.sh
+
+board_config_update
+
+json_is_a system object && exit 0
+
+ucidef_set_hostname "$(uname -n)"
+
+board_config_flush
+
+exit 0
