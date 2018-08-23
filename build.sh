@@ -3,8 +3,8 @@
 set -e
 
 arch_lxd=x86_64
-ver=17.01.4
-dist=lede
+ver=18.06.1
+dist=openwrt
 
 # Workaround for Debian/Ubuntu systems which use C.UTF-8 which is unsupported by OpenWrt
 export LC_TIME=C
