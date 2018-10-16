@@ -7,7 +7,7 @@ ver=18.06.1
 dist=openwrt
 
 # Workaround for Debian/Ubuntu systems which use C.UTF-8 which is unsupported by OpenWrt
-export LC_TIME=C
+export LC_ALL=C
 
 usage() {
 	echo "Usage: $0 [-a|--arch <x86_64|i686>] [-v|--version <version>] [-p|--packages <packages>] [-f|--files] [--help]"
