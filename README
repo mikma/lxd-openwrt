@@ -10,6 +10,8 @@ It's recommended you use Debian or Ubuntu on the build system. The following add
 * build-essential
 * subversion
 * fakeroot
+* gawk
+* gpg
 
 Configuration
 -------------
