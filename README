@@ -16,3 +16,14 @@ It's recommended you use Debian or Ubuntu on the build system. The following add
 Configuration
 -------------
 Refer to the top of build.sh.
+
+Usage
+-----
+./build.sh [-a|--arch <x86_64|i686>] [-v|--version <version>] [-p|--packages <packages>] [-f|--files] [--help]
+
+Example
+-------
+./build.sh -v 18.06.1
+lxc image import bin/openwrt-18.06.1-x86-64-lxd.tar.gz --alias openwrt
+lxc launch openwrt router
+lxc exec router passwd root

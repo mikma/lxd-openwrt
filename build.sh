@@ -221,19 +221,11 @@ EOF
 #     template: hostname.tpl
 }
 
-build_image() {
-	lxc image import $lxc_tar
-}
-
 download_rootfs
 download_sdk
 download_procd
 build_procd
 build_metadata
 build_tarball
-build_image
 
-echo \# start
-echo "lxc launch $image <name>"
-echo \# set root password
-echo "lxc exec <name> passwd root"
+echo "Tarball built: $lxc_tar"
