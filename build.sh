@@ -59,12 +59,13 @@ esac
 branch_ver=$(echo "${ver}"|cut -d- -f1|cut -d. -f1,2)
 
 if test $ver = snapshot; then
-	openwrt_branch=openwrt-18.06
+	openwrt_branch=snapshot
+	procd_url=https://github.com/openwrt/openwrt/trunk/package/system/procd
 else
 	openwrt_branch=${dist}-${branch_ver}
+	procd_url=https://github.com/openwrt/openwrt/branches/${openwrt_branch}/package/system/procd
 fi
 
-procd_url=https://github.com/openwrt/openwrt/branches/${openwrt_branch}/package/system/procd
 procd_extra_ver=lxd-3
 
 lxc_tar=bin/${dist}-${ver}-${arch}-${subarch}-lxd.tar.gz
@@ -150,7 +151,7 @@ check() {
 
 download_procd() {
 	if ! test -e dl/procd-${openwrt_branch}; then
-		svn co $procd_url dl/procd-${openwrt_branch}
+		svn export $procd_url dl/procd-${openwrt_branch}
 		sed -i -e "s/PKG_RELEASE:=\(\S\+\)/PKG_RELEASE:=\1-${procd_extra_ver}/" dl/procd-${openwrt_branch}/Makefile
 	fi
 
