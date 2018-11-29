@@ -1,0 +1,45 @@
+From 0cad3ca4450ad2558067aa4c11574f89efd72394 Mon Sep 17 00:00:00 2001
+From: Mikael Magnusson <mikma@users.sourceforge.net>
+Date: Fri, 24 Aug 2018 13:56:12 +0000
+Subject: [PATCH 2/3] lxd: shutdown on SIGPWR
+
+---
+ initd/init.c | 1 +
+ signal.c     | 2 ++
+ 2 files changed, 3 insertions(+)
+
+diff --git a/initd/init.c b/initd/init.c
+index 0349e6e..29eee50 100644
+--- a/initd/init.c
++++ b/initd/init.c
+@@ -77,6 +77,7 @@ main(int argc, char **argv)
+ 	sigaction(SIGTERM, &sa_shutdown, NULL);
+ 	sigaction(SIGUSR1, &sa_shutdown, NULL);
+ 	sigaction(SIGUSR2, &sa_shutdown, NULL);
++	sigaction(SIGPWR, &sa_shutdown, NULL);
+ 
+ 	early();
+ 	cmdline();
+diff --git a/signal.c b/signal.c
+index 07dda9a..9974153 100644
+--- a/signal.c
++++ b/signal.c
+@@ -44,6 +44,7 @@ static void signal_shutdown(int signal, siginfo_t *siginfo, void *data)
+ 		break;
+ 	case SIGUSR1:
+ 	case SIGUSR2:
++	case SIGPWR:
+ 		event = RB_POWER_OFF;
+ 		msg = "poweroff";
+ 		break;
+@@ -90,6 +91,7 @@ void procd_signal(void)
+ 	sigaction(SIGINT, &sa_shutdown, NULL);
+ 	sigaction(SIGUSR1, &sa_shutdown, NULL);
+ 	sigaction(SIGUSR2, &sa_shutdown, NULL);
++	sigaction(SIGPWR, &sa_shutdown, NULL);
+ 	sigaction(SIGSEGV, &sa_crash, NULL);
+ 	sigaction(SIGBUS, &sa_crash, NULL);
+ 	sigaction(SIGHUP, &sa_dummy, NULL);
+-- 
+2.17.1
+

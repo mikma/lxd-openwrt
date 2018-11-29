@@ -1,21 +1,32 @@
+From 991241149ad50b0ef5e221fe34d993ad67cb4174 Mon Sep 17 00:00:00 2001
+From: Mikael Magnusson <mikma@users.sourceforge.net>
+Date: Fri, 24 Aug 2018 13:55:42 +0000
+Subject: [PATCH 1/3] lxd: no mounts
+
+---
+ initd/early.c   | 16 ----------------
+ initd/zram.c    |  6 ------
+ plug/coldplug.c |  5 -----
+ 3 files changed, 27 deletions(-)
+
 diff --git a/initd/early.c b/initd/early.c
-index 7028ff8..115d8f8 100644
+index 00fd946..dac07b9 100644
 --- a/initd/early.c
 +++ b/initd/early.c
-@@ -27,13 +27,6 @@
+@@ -26,13 +26,6 @@
+ #include "init.h"
  #include "../libc-compat.h"
  
- static void
+-static void
 -early_dev(void)
 -{
 -	mkdev("*", 0600);
 -	mknod("/dev/null", 0666, makedev(1, 3));
 -}
 -
--static void
+ static void
  early_console(const char *dev)
  {
- 	struct stat s;
 @@ -56,15 +49,6 @@ early_mounts(void)
  {
  	unsigned int oldumask = umask(0);
@@ -33,7 +44,7 @@ index 7028ff8..115d8f8 100644
  	if (mount_zram_on_tmp()) {
  		mount("tmpfs", "/tmp", "tmpfs", MS_NOSUID | MS_NODEV | MS_NOATIME, 0);
 diff --git a/initd/zram.c b/initd/zram.c
-index c730942..8eb38a6 100644
+index b41bfd9..70049e6 100644
 --- a/initd/zram.c
 +++ b/initd/zram.c
 @@ -116,12 +116,6 @@ mount_zram_on_tmp(void)
@@ -50,7 +61,7 @@ index c730942..8eb38a6 100644
  
  	ret = chmod("/tmp", 01777);
 diff --git a/plug/coldplug.c b/plug/coldplug.c
-index 5fcb9a3..b846d7f 100644
+index c6a89c3..72554c3 100644
 --- a/plug/coldplug.c
 +++ b/plug/coldplug.c
 @@ -43,13 +43,8 @@ void procd_coldplug(void)
@@ -67,3 +78,6 @@ index 5fcb9a3..b846d7f 100644
  	udevtrigger.cb = udevtrigger_complete;
  	udevtrigger.pid = fork();
  	if (!udevtrigger.pid) {
+-- 
+2.17.1
+
