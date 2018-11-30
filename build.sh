@@ -5,16 +5,17 @@ set -e
 arch_lxd=x86_64
 ver=18.06.1
 dist=openwrt
+type=lxd
 
 # Workaround for Debian/Ubuntu systems which use C.UTF-8 which is unsupported by OpenWrt
 export LC_ALL=C
 
 usage() {
-	echo "Usage: $0 [-a|--arch <x86_64|i686>] [-v|--version <version>] [-p|--packages <packages>] [-f|--files] [--help]"
+	echo "Usage: $0 [-a|--arch <x86_64|i686>] [-v|--version <version>] [-p|--packages <packages>] [-f|--files] [-t|--type lxd|plain] [--help]"
 	exit 1
 }
 
-temp=$(getopt -o "a:v:p:f:" -l "arch:,version:,packages:,files:,help" -- "$@")
+temp=$(getopt -o "a:v:p:f:t:" -l "arch:,version:,packages:,files:,type:,help" -- "$@")
 eval set -- "$temp"
 while true; do
 	case "$1" in
@@ -31,6 +32,16 @@ while true; do
 		packages="$2"; shift 2;;
 	-f|--files)
 		files="$2"; shift 2;;
+	-t|--type)
+		type="$2"
+		shift 2
+
+		case "$type" in
+		lxd|plain)
+			;;
+		*)
+			usage;;
+		esac;;
 	--help)
 		usage;;
 	--)
@@ -68,7 +79,7 @@ fi
 
 procd_extra_ver=lxd-3
 
-lxc_tar=bin/${dist}-${ver}-${arch}-${subarch}-lxd.tar.gz
+tarball=bin/${dist}-${ver}-${arch}-${subarch}-${type}.tar.gz
 metadata=bin/metadata.yaml
 
 download_rootfs() {
@@ -190,11 +201,14 @@ build_procd() {
 
 build_tarball() {
 	export SDK="$(pwd)/${sdk}"
-	local opts="-m $metadata"
+	local opts=""
+	if test ${type} = lxd; then
+		opts="$opts -m $metadata"
+	fi
 	if test ${ver} != snapshot; then
 		opts="$opts --upgrade"
 	fi
-	fakeroot scripts/build_rootfs.sh $rootfs $opts -o $lxc_tar --arch=${arch} --subarch=${subarch} --packages="${packages}" --files="${files}"
+	fakeroot scripts/build_rootfs.sh $rootfs $opts -o $tarball --arch=${arch} --subarch=${subarch} --packages="${packages}" --files="${files}"
 }
 
 build_metadata() {
@@ -229,4 +243,4 @@ build_procd
 build_metadata
 build_tarball
 
-echo "Tarball built: $lxc_tar"
+echo "Tarball built: $tarball"
