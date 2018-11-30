@@ -139,7 +139,7 @@ install_packages() {
 	local packages="$1"
 	for pkg in $packages; do
 		echo Install $pkg
-		$OPKG install $pkg
+		$OPKG install --force-downgrade $pkg
 	done
 }
 
@@ -149,7 +149,6 @@ if test -n "$metadata"; then
 	add_file $metadata $metadata_dir $dir
 fi
 add_files templates/ $dir/templates/
-add_packages bin/packages/${arch}/${subarch}
 opkg_update
 if test -n "$upgrade"; then
 	update_packages

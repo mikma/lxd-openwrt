@@ -81,6 +81,7 @@ procd_extra_ver=lxd-3
 
 tarball=bin/${dist}-${ver}-${arch}-${subarch}-${type}.tar.gz
 metadata=bin/metadata.yaml
+pkgdir=bin/${ver}/packages/${arch}/${subarch}
 
 download_rootfs() {
 	if test $ver = snapshot; then
@@ -195,8 +196,8 @@ build_procd() {
 	make package/lxd-procd/compile
 	)
 	fi
-	test -e bin/packages/${arch}/${subarch} || mkdir -p bin/packages/${arch}/${subarch}
-	(cd bin/packages/${arch}/${subarch} && ln -sf ../../../../$ipk .)
+	test -e ${pkgdir} || mkdir -p ${pkgdir}
+	(cd ${pkgdir} && ln -sf ../../../../../$ipk .)
 }
 
 build_tarball() {
@@ -208,7 +209,11 @@ build_tarball() {
 	if test ${ver} != snapshot; then
 		opts="$opts --upgrade"
 	fi
-	fakeroot scripts/build_rootfs.sh $rootfs $opts -o $tarball --arch=${arch} --subarch=${subarch} --packages="${packages}" --files="${files}"
+	local allpkgs="${packages}"
+	for pkg in $pkgdir/*.ipk; do
+		allpkgs=" $pkg"
+	done
+	fakeroot scripts/build_rootfs.sh $rootfs $opts -o $tarball --arch=${arch} --subarch=${subarch} --packages="${allpkgs}" --files="${files}"
 }
 
 build_metadata() {
