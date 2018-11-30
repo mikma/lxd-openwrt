@@ -29,4 +29,6 @@ echo -e "openwrtpassword\nopenwrtpassword" | passwd
 exit 0
 EOF
 
+export container=lxc
+
 exec /sbin/init "$@"
