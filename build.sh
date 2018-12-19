@@ -85,12 +85,20 @@ tarball=bin/${dist}-${ver}-${arch}-${subarch}-${type}.tar.gz
 metadata=bin/metadata.yaml
 pkgdir=bin/${ver}/packages/${arch}/${subarch}
 
-download_rootfs() {
-	if test $ver = snapshot; then
-		local rootfs_url=${openwrt_url}/${dist}-${arch}-${subarch}-generic-rootfs.tar.gz
-	else
-		local rootfs_url=${openwrt_url}/${dist}-${ver}-${arch}-${subarch}-generic-rootfs.tar.gz
+detect_url() {
+	local pattern="$1"
+	download_sums ${openwrt_url}/dummy
+	local sums=$return
+	return=$(cat $sums|grep "$pattern"|cut -d' ' -f2-|cut -c2-)
+	if [ -z "$return" ]; then
+		echo "URL autodetection failed: $pattern"
+		exit 1
 	fi
+}
+
+download_rootfs() {
+	detect_url "generic-rootfs"
+	local rootfs_url=$openwrt_url/$return
 
 	# global $rootfs
 	rootfs=dl/$(basename $rootfs_url)
@@ -100,13 +108,8 @@ download_rootfs() {
 }
 
 download_sdk() {
-	if test $ver = snapshot; then
-		local sdk_url=${openwrt_url}/${dist}-sdk-${arch}-${subarch}_gcc-7.3.0_musl.Linux-x86_64.tar.xz
-	elif test $ver \< 18; then
-		local sdk_url=${openwrt_url}/${dist}-sdk-${ver}-${arch}-${subarch}_gcc-5.4.0_musl-1.1.16.Linux-x86_64.tar.xz
-	else
-		local sdk_url=${openwrt_url}/${dist}-sdk-${ver}-${arch}-${subarch}_gcc-7.3.0_musl.Linux-x86_64.tar.xz
-	fi
+	detect_url "sdk"
+	local sdk_url=$openwrt_url/$return
 	local sdk_tar=dl/$(basename $sdk_url)
 
 	download $sdk_url $sdk_tar
@@ -157,7 +160,7 @@ check() {
 	local dst_sum="$(grep $(basename $dst_url) $sums|cut -d ' ' -f 1)"
 
 	sum=$(sha256sum $dst| cut -d ' ' -f1)
-	if test -z "$dst_sum" -o $dst_sum != $sum; then
+	if test -z "$dst_sum" -o "$dst_sum" != $sum; then
 		echo Bad checksum $sum of $dst
 		exit 1
 	fi
