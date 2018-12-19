@@ -72,9 +72,11 @@ branch_ver=$(echo "${ver}"|cut -d- -f1|cut -d. -f1,2)
 if test $ver = snapshot; then
 	openwrt_branch=snapshot
 	procd_url=https://github.com/openwrt/openwrt/trunk/package/system/procd
+	openwrt_url=https://downloads.openwrt.org/snapshots/targets/${arch}/${subarch}
 else
 	openwrt_branch=${dist}-${branch_ver}
 	procd_url=https://github.com/openwrt/openwrt/branches/${openwrt_branch}/package/system/procd
+	openwrt_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}
 fi
 
 procd_extra_ver=lxd-3
@@ -85,9 +87,9 @@ pkgdir=bin/${ver}/packages/${arch}/${subarch}
 
 download_rootfs() {
 	if test $ver = snapshot; then
-		local rootfs_url=https://downloads.openwrt.org/snapshots/targets/${arch}/${subarch}/${dist}-${arch}-${subarch}-generic-rootfs.tar.gz
+		local rootfs_url=${openwrt_url}/${dist}-${arch}-${subarch}-generic-rootfs.tar.gz
 	else
-		local rootfs_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-${ver}-${arch}-${subarch}-generic-rootfs.tar.gz
+		local rootfs_url=${openwrt_url}/${dist}-${ver}-${arch}-${subarch}-generic-rootfs.tar.gz
 	fi
 
 	# global $rootfs
@@ -99,11 +101,11 @@ download_rootfs() {
 
 download_sdk() {
 	if test $ver = snapshot; then
-		local sdk_url=https://downloads.openwrt.org/snapshots/targets/${arch}/${subarch}/${dist}-sdk-${arch}-${subarch}_gcc-7.3.0_musl.Linux-x86_64.tar.xz
+		local sdk_url=${openwrt_url}/${dist}-sdk-${arch}-${subarch}_gcc-7.3.0_musl.Linux-x86_64.tar.xz
 	elif test $ver \< 18; then
-		local sdk_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-sdk-${ver}-${arch}-${subarch}_gcc-5.4.0_musl-1.1.16.Linux-x86_64.tar.xz
+		local sdk_url=${openwrt_url}/${dist}-sdk-${ver}-${arch}-${subarch}_gcc-5.4.0_musl-1.1.16.Linux-x86_64.tar.xz
 	else
-		local sdk_url=https://downloads.openwrt.org/releases/${ver}/targets/${arch}/${subarch}/${dist}-sdk-${ver}-${arch}-${subarch}_gcc-7.3.0_musl.Linux-x86_64.tar.xz
+		local sdk_url=${openwrt_url}/${dist}-sdk-${ver}-${arch}-${subarch}_gcc-7.3.0_musl.Linux-x86_64.tar.xz
 	fi
 	local sdk_tar=dl/$(basename $sdk_url)
 
