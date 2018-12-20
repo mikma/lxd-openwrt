@@ -57,10 +57,17 @@ case "$arch_lxd" in
 	i686)
 		arch=x86
 		subarch=generic
+		arch_ipk=i386_pentium4
 		;;
 	x86_64)
 		arch=x86
 		subarch=64
+		arch_ipk=x86_64
+		;;
+	aarch64)
+		arch=armvirt
+		subarch=64
+		arch_ipk=aarch64_generic
 		;;
 	*)
 		usage
@@ -97,7 +104,7 @@ detect_url() {
 }
 
 download_rootfs() {
-	detect_url "generic-rootfs"
+	detect_url "rootfs\.tar"
 	local rootfs_url=$openwrt_url/$return
 
 	# global $rootfs
@@ -184,7 +191,7 @@ build_procd() {
 	local version=$(grep PKG_SOURCE_VERSION:= dl/procd-${openwrt_branch}/Makefile | cut -d '=' -f 2 | cut -b '1-8')
 	local release=$(grep PKG_RELEASE:= dl/procd-${openwrt_branch}/Makefile | cut -d '=' -f 2)
 	local ipk_old=$sdk/bin/targets/${arch}/${subarch}/packages/procd_${date}-${version}-${release}_*.ipk
-	local ipk_new=$sdk/bin/packages/${arch_lxd}/base/procd_${date}-${version}-${release}_*.ipk
+	local ipk_new=$sdk/bin/packages/${arch_ipk}/base/procd_${date}-${version}-${release}_*.ipk
 
 	if test $ver \< 18; then
 		local ipk=$ipk_old
