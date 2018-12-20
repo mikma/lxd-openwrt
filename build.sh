@@ -11,7 +11,7 @@ type=lxd
 export LC_ALL=C
 
 usage() {
-	echo "Usage: $0 [-a|--arch <x86_64|i686>] [-v|--version <version>] [-p|--packages <packages>] [-f|--files] [-t|--type lxd|plain] [--help]"
+	echo "Usage: $0 [-a|--arch <x86_64|i686|aarch64>] [-v|--version <version>] [-p|--packages <packages>] [-f|--files] [-t|--type lxd|plain] [--help]"
 	exit 1
 }
 
