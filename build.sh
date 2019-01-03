@@ -151,6 +151,7 @@ download_sums() {
 	local sums_file="dl/sha256sums_$(echo $sums_url|md5sum|cut -d ' ' -f 1)"
 
 	if ! test -e $sums_file; then
+		test -e "dl" || mkdir "dl"
 		wget -O $sums_file $sums_url
 	fi
 
