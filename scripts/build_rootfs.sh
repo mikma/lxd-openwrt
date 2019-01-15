@@ -65,9 +65,9 @@ unpack() {
 pack() {
 	echo Pack rootfs
 	if test -n "$metadata"; then
-		(cd $dir && tar -cz *) > $dst_file
+		(cd $dir && tar -cz * || true) > $dst_file
 	else
-		(cd $dir/rootfs && tar -cz *) > $dst_file
+		(cd $dir/rootfs && tar -cz * || true) > $dst_file
 	fi
 }
 
