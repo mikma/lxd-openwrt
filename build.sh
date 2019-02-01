@@ -3,7 +3,7 @@
 set -e
 
 arch_lxd=x86_64
-ver=18.06.1
+ver=18.06.2
 dist=openwrt
 type=lxd
 
