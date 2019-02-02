@@ -6,16 +6,17 @@ arch_lxd=x86_64
 ver=18.06.2
 dist=openwrt
 type=lxd
+super=fakeroot
 
 # Workaround for Debian/Ubuntu systems which use C.UTF-8 which is unsupported by OpenWrt
 export LC_ALL=C
 
 usage() {
-	echo "Usage: $0 [-a|--arch <x86_64|i686|aarch64>] [-v|--version <version>] [-p|--packages <packages>] [-f|--files] [-t|--type lxd|plain] [--help]"
+	echo "Usage: $0 [-a|--arch x86_64|i686|aarch64] [-v|--version <version>] [-p|--packages <packages>] [-f|--files] [-t|--type lxd|plain] [-s|--super fakeroot|sudo] [--help]"
 	exit 1
 }
 
-temp=$(getopt -o "a:v:p:f:t:" -l "arch:,version:,packages:,files:,type:,help" -- "$@")
+temp=$(getopt -o "a:v:p:f:t:s:" -l "arch:,version:,packages:,files:,type:,super:,help" -- "$@")
 eval set -- "$temp"
 while true; do
 	case "$1" in
@@ -38,6 +39,16 @@ while true; do
 
 		case "$type" in
 		lxd|plain)
+			;;
+		*)
+			usage;;
+		esac;;
+	-s|--super)
+		super="$2"
+		shift 2
+
+		case "$super" in
+		fakeroot|sudo)
 			;;
 		*)
 			usage;;
@@ -226,7 +237,20 @@ build_tarball() {
 	for pkg in $pkgdir/*.ipk; do
 		allpkgs=" $pkg"
 	done
-	fakeroot scripts/build_rootfs.sh $rootfs $opts -o $tarball --arch=${arch} --subarch=${subarch} --packages="${allpkgs}" --files="${files}"
+
+	local cmd="scripts/build_rootfs.sh"
+	if test `id -u` != 0; then
+		case "$super" in
+			sudo)
+				cmd="sudo --preserve-env=SDK $cmd"
+				;;
+			*)
+				cmd="$super $cmd"
+				;;
+		esac
+	fi
+
+	$cmd $rootfs $opts -o $tarball --arch=${arch} --subarch=${subarch} --packages="${allpkgs}" --files="${files}"
 }
 
 build_metadata() {
