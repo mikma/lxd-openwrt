@@ -3,7 +3,7 @@
 set -e
 
 usage() {
-	echo "Usage: $0 [-a|--arch <arch>] [-s|--subarch <subarch>] [-o|--output <dst file>] [-p|--packages <packages>] [-f|--files <files>] [-m|--metadata <metadata.yaml>] [-u|--upgrade] <src tar>"
+	echo "Usage: $0 [-a|--arch <arch>] [-d|--disable-services <services>] [-s|--subarch <subarch>] [-o|--output <dst file>] [-p|--packages <packages>] [-f|--files <files>] [-m|--metadata <metadata.yaml>] [-u|--upgrade] <src tar>"
 	exit 1
 }
 
@@ -12,16 +12,19 @@ subarch=64
 packages=
 dst_file=/dev/stdout
 files=
+services=
 metadata=
 metadata_dir=
 upgrade=
 
-temp=$(getopt -o "a:o:p:s:f:m:u:" -l "arch:,output:,packages:,subarch:,files:,metadata:,upgrade,help" -- "$@")
+temp=$(getopt -o "a:d:o:p:s:f:m:u:" -l "arch:,disable-services:,output:,packages:,subarch:,files:,metadata:,upgrade,help" -- "$@")
 eval set -- "$temp"
 while true; do
 	case "$1" in
 		-a|--arch)
 			arch="$2"; shift 2;;
+		-d|--disable-services)
+            services="$2"; shift 2;;
 		-s|--subarch)
 			subarch="$2"; shift 2;;
 		-p|--packages)
@@ -143,6 +146,14 @@ install_packages() {
 	done
 }
 
+disable_services() {
+    local services="$1"
+    for service in $services; do
+        echo Disabling $service
+        env IPKG_INSTROOT=$instroot sh $instroot/etc/rc.common $instroot/etc/init.d/$service disable
+    done
+}
+
 unpack
 disable_root
 if test -n "$metadata"; then
@@ -154,6 +165,7 @@ if test -n "$upgrade"; then
 	update_packages
 fi
 install_packages "$packages"
+disable_services "$services"
 add_files $files_dir $instroot
 if test -n "$files"; then
 	add_files $files $instroot
