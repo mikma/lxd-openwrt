@@ -235,7 +235,7 @@ build_tarball() {
 	fi
 	local allpkgs="${packages}"
 	for pkg in $pkgdir/*.ipk; do
-		allpkgs=" $pkg"
+		allpkgs="${allpkgs} $pkg"
 	done
 
 	local cmd="scripts/build_rootfs.sh"
