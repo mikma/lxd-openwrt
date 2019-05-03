@@ -1,0 +1,11 @@
+#!/bin/sh
+
+cat >> /etc/firewall.user << EOF
+
+# Fill DHCP checksums, try to work-around broken DHCP clients (such as FreeBSD).
+# It requires iptables-mod-checksum which is installed by default in lxd-openwrt.
+if [ -e /usr/lib/iptables/libxt_CHECKSUM.so ]; then
+    iptables -t mangle -A OUTPUT -p udp -m udp --dport 68 -j CHECKSUM --checksum-fill
+fi
+
+EOF

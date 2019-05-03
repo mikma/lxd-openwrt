@@ -7,6 +7,8 @@ ver=18.06.2
 dist=openwrt
 type=lxd
 super=fakeroot
+# iptables-mod-checksum is required by the work-around inserted by files/etc/uci-defaults/70_fill-dhcp-checksum.
+packages=iptables-mod-checksum
 
 # Workaround for Debian/Ubuntu systems which use C.UTF-8 which is unsupported by OpenWrt
 export LC_ALL=C
