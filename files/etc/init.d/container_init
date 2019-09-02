@@ -44,9 +44,9 @@ boot() {
 		fi
 	fi
 
-	for r in /lib/modules/*; do
-		ln -s $r /lib/modules/$(uname -r)
-		break
+	if [ ! -e /lib/modules/$(uname -r) ]; then
+		local modulesdir=$(basename $(dirname $(opkg files kmod-ipt-core|grep "/lib/modules/[0-9].*"|head -1)))
+		ln -s $modulesdir /lib/modules/$(uname -r)
 	done
 	exit $res
 }
