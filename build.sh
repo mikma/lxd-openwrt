@@ -187,6 +187,14 @@ check() {
 	fi
 }
 
+need_procd() {
+	if ls patches/procd-${openwrt_branch}/*.patch 2>/dev/null >/dev/null; then
+		return 0
+	else
+		return 1
+	fi
+}
+
 download_procd() {
 	if ! test -e dl/procd-${openwrt_branch}; then
 		svn export $procd_url dl/procd-${openwrt_branch}
@@ -194,7 +202,7 @@ download_procd() {
 	fi
 
 	test -e dl/procd-${openwrt_branch}/patches || mkdir dl/procd-${openwrt_branch}/patches
-	cp -a patches/procd-${openwrt_branch}/* dl/procd-${openwrt_branch}/patches
+	cp -a patches/procd-${openwrt_branch}/*.patch dl/procd-${openwrt_branch}/patches
 }
 
 build_procd() {
@@ -236,7 +244,7 @@ build_tarball() {
 		opts="$opts --upgrade"
 	fi
 	local allpkgs="${packages}"
-	for pkg in $pkgdir/*.ipk; do
+	test -d $pkgdir && for pkg in $pkgdir/*.ipk; do
 		allpkgs="${allpkgs} $pkg"
 	done
 
@@ -260,6 +268,7 @@ build_metadata() {
 	local date="`date -d \"@${stat}\" +%F`"
 	local desc="$(tar xf $rootfs ./etc/openwrt_release -O|grep DISTRIB_DESCRIPTION|sed -e "s/.*='\(.*\)'/\1/")"
 
+	test -e bin || mkdir bin
 	cat > $metadata <<EOF
 architecture: "$arch_lxd"
 creation_date: $(date +%s)
@@ -282,8 +291,10 @@ EOF
 
 download_rootfs
 download_sdk
-download_procd
-build_procd
+if need_procd; then
+	download_procd
+	build_procd
+fi
 build_metadata
 build_tarball
 
