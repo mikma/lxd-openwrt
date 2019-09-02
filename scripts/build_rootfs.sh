@@ -154,6 +154,10 @@ disable_services() {
     done
 }
 
+create_manifest() {
+    $OPKG list-installed > $instroot/etc/openwrt_manifest
+}
+
 unpack
 disable_root
 if test -n "$metadata"; then
@@ -170,5 +174,6 @@ add_files $files_dir $instroot
 if test -n "$files"; then
 	add_files $files $instroot
 fi
+create_manifest
 pack
 #pack_squashfs
