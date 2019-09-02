@@ -11,7 +11,7 @@ diff --git a/state.c b/state.c
 index ccf4104..bd59d7e 100644
 --- a/state.c
 +++ b/state.c
-@@ -157,18 +157,7 @@ static void state_enter(void)
+@@ -157,18 +157,8 @@ static void state_enter(void)
  		else
  			LOG("- reboot -\n");
  
@@ -27,6 +27,7 @@ index ccf4104..bd59d7e 100644
 -		}
 -		while (1)
 -			sleep(1);
++		reboot(reboot_event);
 +		exit(0);
  #else
  		exit(0);
