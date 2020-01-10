@@ -23,7 +23,7 @@ Usage
 
 Example
 -------
-./build.sh -v 18.06.2
-lxc image import bin/openwrt-18.06.2-x86-64-lxd.tar.gz --alias openwrt
+./build.sh
+lxc image import bin/openwrt-*-lxd.tar.gz --alias openwrt
 lxc launch openwrt router
 lxc exec router passwd root
