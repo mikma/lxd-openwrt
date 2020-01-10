@@ -25,12 +25,7 @@ while true; do
 	-a|--arch)
 		arch_lxd="$2"; shift 2;;
 	-v|--version)
-		ver="$2"; shift 2
-		if test ver=snapshot; then
-			dist=openwrt
-		else
-			dist=lede
-		fi;;
+		ver="$2"; shift 2;;
 	-p|--packages)
 		packages="$2"; shift 2;;
 	-f|--files)
