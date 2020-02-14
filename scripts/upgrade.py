@@ -107,8 +107,13 @@ class Container:
                 print("Installing %s" % packages)
                 self.execute(['opkg', 'install'] + packages)
 
-        def package_set(self):
-                old_list = self.opkg_list_installed().split('\n')
+        def opkg_remove(self, packages):
+                print("Removing %s" % packages)
+                self.execute(['opkg', 'remove'] + packages)
+
+        def _package_set_from_str(self, s):
+                print("_package_set_from_str ", type(s))
+                old_list = s.split('\n')
                 old_packages = []
                 i = 1
                 for l in old_list:
@@ -118,6 +123,12 @@ class Container:
                                 (name, _, version) = res
                                 old_packages.append(name)
                 return frozenset(old_packages)
+
+        def package_set(self):
+                return self._package_set_from_str(self.opkg_list_installed())
+
+        def orig_package_set(self):
+                return self._package_set_from_str(self.container.files.get('/etc/openwrt_manifest').decode('ascii'))
 
 def usage(argv):
         print("Usage:", argv[0], "<old container> <new container> <image>")
@@ -161,9 +172,18 @@ def main(argv):
                 print("Update package list")
                 new.opkg_update()
 
+        orig_set = old.orig_package_set()
         old_set = old.package_set()
         new_set = new.package_set()
-        add_packages = list(old_set.difference(new_set).difference(['iw']))
+        del_set = orig_set.difference(old_set)
+        del_packages = list(del_set)
+        add_packages = list(old_set.difference(new_set).difference(['iw']).difference(del_set))
+
+        if len(del_packages) > 0:
+                print("Remove", del_packages)
+                new.opkg_remove(del_packages)
+        else:
+                print("No packages uninstalled")
 
         if len(add_packages) > 0:
                 print("Install", add_packages)
