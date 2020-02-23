@@ -14,7 +14,7 @@ packages=iptables-mod-checksum
 export LC_ALL=C
 
 usage() {
-	echo "Usage: $0 [-a|--arch x86_64|i686|aarch64] [-v|--version <version>] [-p|--packages <packages>] [-f|--files] [-t|--type lxd|plain] [-s|--super fakeroot|sudo] [--help]"
+	echo "Usage: $0 [-a|--arch x86_64|i686|aarch64|aarch32] [-v|--version <version>] [-p|--packages <packages>] [-f|--files] [-t|--type lxd|plain] [-s|--super fakeroot|sudo] [--help]"
 	exit 1
 }
 
@@ -76,6 +76,11 @@ case "$arch_lxd" in
 		arch=armvirt
 		subarch=64
 		arch_ipk=aarch64_generic
+		;;
+    aarch32)
+		arch=armvirt
+		subarch=32
+		arch_ipk=aarch32_generic
 		;;
 	*)
 		usage
