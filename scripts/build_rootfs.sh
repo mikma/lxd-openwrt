@@ -66,10 +66,12 @@ OPKG="env LD_PRELOAD= IPKG_NO_SCRIPT=1 IPKG_INSTROOT=$instroot $SDK/staging_dir/
 unpack() {
 	mkdir -p $instroot
 	cat $src_tar | (cd $instroot && tar -xz)
+	mkdir -p $instroot/var/lock/
 }
 
 pack() {
 	echo Pack rootfs
+	(cd $instroot && rm -rf var/lock/)
 	if test -n "$metadata"; then
 		(cd $dir && tar -cz *) > $dst_file
 	else
