@@ -3,12 +3,13 @@
 set -e
 
 usage() {
-	echo "Usage: $0 [-a|--arch <arch>] [-d|--disable-services <services>] [-s|--subarch <subarch>] [-o|--output <dst file>] [-p|--packages <packages>] [-f|--files <files>] [-m|--metadata <metadata.yaml>] [-u|--upgrade] <src tar>"
+	echo "Usage: $0 [-a|--arch <arch>] [-v|--version <version>] [-d|--disable-services <services>] [-s|--subarch <subarch>] [-o|--output <dst file>] [-p|--packages <packages>] [-f|--files <files>] [-m|--metadata <metadata.yaml>] [-u|--upgrade] <src tar>"
 	exit 1
 }
 
 arch=x86
 subarch=64
+version=
 packages=
 dst_file=/dev/stdout
 files=
@@ -17,12 +18,14 @@ metadata=
 metadata_dir=
 upgrade=
 
-temp=$(getopt -o "a:d:o:p:s:f:m:u:" -l "arch:,disable-services:,output:,packages:,subarch:,files:,metadata:,upgrade,help" -- "$@")
+temp=$(getopt -o "a:d:o:p:s:f:m:u:v:" -l "arch:,disable-services:,output:,packages:,subarch:,files:,metadata:,upgrade,version:,help" -- "$@")
 eval set -- "$temp"
 while true; do
 	case "$1" in
 		-a|--arch)
 			arch="$2"; shift 2;;
+		-v|--version)
+			version="$2"; shift 2;;
 		-d|--disable-services)
             services="$2"; shift 2;;
 		-s|--subarch)
@@ -46,7 +49,7 @@ while true; do
 	esac
 done
 
-if [ $# -ne 1 ]; then
+if [ $# -ne 1 -o -z "$version" ]; then
 	usage
 fi
 
@@ -55,7 +58,7 @@ base=`basename $src_tar`
 dir=/tmp/build.$$
 files_dir=files/
 instroot=$dir/rootfs
-cache=dl/packages/$arch/$subarch
+cache=dl/packages/$version/$arch/$subarch
 
 test -e $cache || mkdir -p $cache
 OPKG="env LD_PRELOAD= IPKG_NO_SCRIPT=1 IPKG_INSTROOT=$instroot $SDK/staging_dir/host/bin/opkg -o $instroot --cache $cache"

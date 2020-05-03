@@ -262,7 +262,7 @@ build_tarball() {
 		esac
 	fi
 
-	$cmd $rootfs $opts -o $tarball --disable-services="sysfixtime sysntpd led" --arch=${arch} --subarch=${subarch} --packages="${allpkgs}" --files="${files}"
+	$cmd $rootfs $opts -o $tarball --disable-services="sysfixtime sysntpd led" --arch=${arch} --subarch=${subarch} --version=${ver} --packages="${allpkgs}" --files="${files}"
 }
 
 build_metadata() {
