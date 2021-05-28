@@ -15,7 +15,7 @@ Refer to the top of build.sh.
 
 Usage
 -----
-./build.sh [-a|--arch x86_64|i686|aarch64] [-v|--version <version>] [-p|--packages <packages>] [-f|--files] [-t|--type lxd|plain] [-s|--super fakeroot|sudo] [--help]
+./build.sh [-a|--arch x86_64|i686|aarch64] [-v|--version <version>] [-p|--packages <packages>] [-f|--files] [-t|--type lxd|plain] [-s|--super fakeroot|sudo] [-u|--upgrade] [--help]
 
 Example
 -------

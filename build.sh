@@ -9,16 +9,17 @@ type=lxd
 super=fakeroot
 # iptables-mod-checksum is required by the work-around inserted by files/etc/uci-defaults/70_fill-dhcp-checksum.
 packages=iptables-mod-checksum
+upgrade=
 
 # Workaround for Debian/Ubuntu systems which use C.UTF-8 which is unsupported by OpenWrt
 export LC_ALL=C
 
 usage() {
-	echo "Usage: $0 [-a|--arch x86_64|i686|aarch64|aarch32] [-v|--version <version>] [-p|--packages <packages>] [-f|--files] [-t|--type lxd|plain] [-s|--super fakeroot|sudo] [--help]"
+	echo "Usage: $0 [-a|--arch x86_64|i686|aarch64|aarch32] [-v|--version <version>] [-p|--packages <packages>] [-f|--files] [-t|--type lxd|plain] [-s|--super fakeroot|sudo] [-u|--upgrade] [--help]"
 	exit 1
 }
 
-temp=$(getopt -o "a:v:p:f:t:s:" -l "arch:,version:,packages:,files:,type:,super:,help" -- "$@")
+temp=$(getopt -o "a:v:p:f:t:s:u" -l "arch:,version:,packages:,files:,type:,super:,upgrade,help" -- "$@")
 eval set -- "$temp"
 while true; do
 	case "$1" in
@@ -50,6 +51,10 @@ while true; do
 		*)
 			usage;;
 		esac;;
+	-u|--upgrade)
+		upgrade="1"
+		shift 1
+		;;
 	--help)
 		usage;;
 	--)
@@ -240,7 +245,7 @@ build_tarball() {
 	if test ${type} = lxd; then
 		opts="$opts -m $metadata"
 	fi
-	if test ${ver} != snapshot; then
+	if test "${upgrade}" = "1"; then
 		opts="$opts --upgrade"
 	fi
 	local allpkgs="${packages}"
