@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import re
 import sys
 import time
 import pylxd
@@ -115,12 +116,17 @@ class Container:
                 print("_package_set_from_str ", type(s))
                 old_list = s.split('\n')
                 old_packages = []
+                pat = re.compile(r'([\w\.\-]*?)[0-9][0-9a-f\.\-]*')
                 i = 1
                 for l in old_list:
                         i = i + 1
                         res = l.split(' ')
                         if len(res) == 3:
                                 (name, _, version) = res
+                                if name.startswith('lib'):
+                                        m = pat.match(name)
+                                        if m:
+                                                name = m[1]
                                 old_packages.append(name)
                 return frozenset(old_packages)
 
