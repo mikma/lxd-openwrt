@@ -181,8 +181,9 @@ def main(argv):
         old_set = old.package_set()
         new_set = new.package_set()
         del_set = orig_set.difference(old_set)
+        add_set = old_set.difference(orig_set)
         del_packages = list(del_set)
-        add_packages = list(old_set.difference(new_set).difference(['iw']).difference(del_set))
+        add_packages = list(add_set.difference(['iw']))
 
         if len(del_packages) > 0:
                 print("Remove", del_packages)
