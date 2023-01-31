@@ -28,7 +28,6 @@ def find_source_image(client, image):
 def copy_config(old, new):
         new.devices = old.devices
         new.description = old.description
-        new.profiles = old.profiles
         new_config = new.config
 
         for key, value in old.config.items():
@@ -160,7 +159,7 @@ def main(argv):
                 old.start(wait=True)
 
         new_source = find_source_image(client, new_image)
-        new_config = {'name': new_name, 'source': new_source}
+        new_config = {'name': new_name, 'source': new_source, 'profiles': old.profiles}
 
         if is_allow_existing and client.containers.exists(new_name):
                 new = Container(client.containers.get(new_name))
