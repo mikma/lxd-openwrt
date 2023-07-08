@@ -135,6 +135,10 @@ class Container:
         def orig_package_set(self):
                 return self._package_set_from_str(self.container.files.get('/etc/openwrt_manifest').decode('ascii'))
 
+        def save_orig_package_set(self):
+                self.execute(['sh', '-c', 'opkg list-installed > tee /etc/openwrt_manifest'])
+
+
 def usage(argv):
         print("Usage:", argv[0], "<old container> <new container> <image>")
         exit(1)
@@ -176,6 +180,9 @@ def main(argv):
 
                 print("Update package list")
                 new.opkg_update()
+
+        print("Build /etc/openwrt_manifest")
+        new.save_orig_package_set()
 
         orig_set = old.orig_package_set()
         old_set = old.package_set()
