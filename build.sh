@@ -3,7 +3,7 @@
 set -e
 
 arch_lxd=x86_64
-ver=19.07.7
+ver=22.03.5
 dist=openwrt
 type=lxd
 super=fakeroot
