@@ -90,11 +90,12 @@ class Container:
 
         def sysupgrade_backup(self, ):
                 return self.execute_with_output(['sysupgrade', '-b', '-'],
-                                                decode=False)
+                                                encoding='raw', decode=False)
 
         def sysupgrade_restore(self, data):
-                self.execute(['sysupgrade', '-r', '-'],
-                        stdin_payload=data, decode=False)
+                backup_file = '/tmp/lxd-upgrade.tar.gz'
+                self.files.put(backup_file, data)
+                self.execute(['sysupgrade', '-r', backup_file])
 
         def opkg_list_installed(self, ):
                 return self.execute_with_output(['opkg', 'list-installed'])
