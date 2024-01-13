@@ -176,6 +176,8 @@ def main(argv):
                 print("Start", new_name)
                 new.start(wait=True)
 
+                # Can't use ujail on LXD instances
+                new.opkg_remove(['procd-ujail'])
                 print("Ping downloads.openwrt.org")
                 new.ping('downloads.openwrt.org')
 
@@ -191,6 +193,7 @@ def main(argv):
         del_set = orig_set.difference(old_set)
         add_set = old_set.difference(orig_set)
         del_packages = list(del_set)
+        del_packages.append('procd-ujail')
         add_packages = list(add_set.difference(['iw']))
 
         if len(del_packages) > 0:
