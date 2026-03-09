@@ -13,39 +13,8 @@ boot() {
 		exit 0
 	fi
 
-	local disable_ipv6="$(uci_get firewall @defaults[0] disable_ipv6 false)"
-	case "$disable_ipv6" in
-		'0'|'no'|'off'|'false'|'disabled') disable_ipv6=false ;;
-		'1'|'yes'|'on'|'true'|'enabled') disable_ipv6=true ;;
-	esac
-
-	tables='filter nat mangle raw'
-	res=0
-	for table in $tables; do
-		iptables -n -t $table -L >/dev/null 2>/dev/null 
-		if ! grep $table /proc/net/ip_tables_names >/dev/null; then
-			log_output -p daemon.crit "ip $table load failed"
-			res=1
-		fi
-
-		if [ "$disable_ipv6" = "false" ]; then
-			ip6tables -n -t $table -L >/dev/null 2>/dev/null
-			if ! grep $table /proc/net/ip6_tables_names >/dev/null; then
-				log_output -p daemon.crit "ip6 $table load failed"
-				res=1
-			fi
-		fi
-	done
-	if [ "$res" == "0" ]; then
-		if [ "$disable_ipv6" = "false" ]; then
-			log_output -p daemon.info "ip and ip6 tables loaded successfully"
-		else
-			log_output -p daemon.info "ip tables loaded successfully"
-		fi
-	fi
-
 	if [ ! -e /lib/modules/$(uname -r) ]; then
-		local modulesdir=$(basename $(dirname $(apk info -L kmod-nft-core|grep "/lib/modules/[0-9].*"|head -1)))
+		local modulesdir=$(basename $(dirname $(apk info -L kmod-nft-core|grep "lib/modules/[0-9].*"|head -1)))
 		ln -s $modulesdir /lib/modules/$(uname -r)
 	fi
 	exit $res
