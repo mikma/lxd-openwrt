@@ -61,7 +61,7 @@ instroot=$dir/rootfs
 cache=dl/packages/$version/$arch/$subarch
 
 test -e $cache || mkdir -p $cache
-OPKG="env LD_PRELOAD= IPKG_NO_SCRIPT=1 IPKG_INSTROOT=$instroot $SDK/staging_dir/host/bin/opkg -o $instroot --cache $cache"
+APK="env LD_PRELOAD= IPKG_INSTROOT=$instroot $SDK/staging_dir/host/bin/apk --root $instroot"
 
 unpack() {
 	mkdir -p $instroot
@@ -121,25 +121,25 @@ add_files() {
 
 add_package() {
 	local ipkg=$1
-	$OPKG install --force-downgrade $ipkg
+	$APK add $ipkg
 }
 
 add_packages() {
 	local dir=$1
-	for f in $dir/*.ipk; do
+	for f in $dir/*.apk; do
 		add_package $f
 	done
 }
 
-opkg_update() {
-	$OPKG update
+apk_update() {
+	$APK update
 }
 
 update_packages() {
-	local upgradable="$($OPKG list-upgradable|grep -e '^.* - .* - .*'|cut -d ' ' -f 1)"
+	local upgradable="$($APK list --upgradable|cut -d ' ' -f 1)"
 	for pkg in $upgradable; do
 		echo Upgrading $pkg
-		$OPKG upgrade $pkg
+		$APK upgrade $pkg
 	done
 }
 
@@ -147,7 +147,7 @@ install_packages() {
 	local packages="$1"
 	for pkg in $packages; do
 		echo Install $pkg
-		$OPKG install --force-downgrade $pkg
+		add_package $pkg
 	done
 }
 
@@ -160,7 +160,7 @@ disable_services() {
 }
 
 create_manifest() {
-    $OPKG list-installed > $instroot/etc/openwrt_manifest
+    $APK list --installed > $instroot/etc/openwrt_manifest
 }
 
 unpack
@@ -169,7 +169,7 @@ if test -n "$metadata"; then
 	add_file $metadata $metadata_dir $dir
 fi
 add_files templates/ $dir/templates/
-opkg_update
+apk_update
 if test -n "$upgrade"; then
 	update_packages
 fi
