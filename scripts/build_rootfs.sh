@@ -131,6 +131,11 @@ add_packages() {
 	done
 }
 
+del_package() {
+	local pkg=$1
+	$APK del $pkg
+}
+
 apk_update() {
 	$APK update
 }
@@ -148,6 +153,14 @@ install_packages() {
 	for pkg in $packages; do
 		echo Install $pkg
 		add_package $pkg
+	done
+}
+
+remove_packages() {
+	local packages="$1"
+	for pkg in $packages; do
+		echo Remove $pkg
+		del_package $pkg
 	done
 }
 
@@ -174,6 +187,7 @@ if test -n "$upgrade"; then
 	update_packages
 fi
 install_packages "$packages"
+remove_packages "procd-ujail"
 disable_services "$services"
 add_files $files_dir $instroot
 if test -n "$files"; then
